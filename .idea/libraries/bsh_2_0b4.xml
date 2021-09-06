@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="bsh-2.0b4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/bsh-2.0b4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/gluegen-rt-natives-linux-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/gluegen-rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/itext-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/j3dcore.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/j3dutils.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jcommon-1.0.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jfreechart-1.0.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jmf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jogl-all-natives-linux-amd64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jogl-all.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mason.19.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.paho.client.mqttv3-1.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/portfolio.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/vecmath.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
