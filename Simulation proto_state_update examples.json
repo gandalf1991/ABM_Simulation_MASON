@@ -1,0 +1,196 @@
+#### SIMULATION_PROTOTYPE ####
+{
+  "id": 0,
+  "name": "Flockers",
+  "description": "Sim description...",
+  "type": "CONTINUOUS",
+  "dimensions": [
+    {
+      "name": "x",
+      "type": "System.Int32",
+      "default": 500
+    },
+    {
+      "name": "y",
+      "type": "System.Int32",
+      "default": 500
+    },
+    {
+      "name": "z",
+      "type": "System.Int32",
+      "default": 500
+    }
+  ],
+  "sim_params": [
+    {
+      "name": "cohesion",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "avoidance",
+      "type": "System.Single",
+      "default": "0.5"
+    },
+    {
+      "name": "randomness",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "consistency",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "momentum",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "neighborhood",
+      "type": "System.Int32",
+      "default": 10
+    },
+    {
+      "name": "jump",
+      "type": "System.Single",
+      "default": 0.7
+    }
+  ],
+  "agent_prototypes": [
+    {
+      "class": "Flocker",
+      "default": 10,
+      "params": [
+        {
+          "name": "position",
+          "type": "System.Position",
+          "editable_in_init": false,
+          "editable_in_play": false,
+          "editable_in_pause": true,
+          "default": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          }
+        }
+      ]
+    }
+  ],
+  "generic_prototypes": []
+}
+
+#### SIMULATION_STATE ####
+{
+  "sim_params" : {
+
+  },
+  "agents": [
+    {
+      "id" : 1,
+      "class" : "Flocker",
+      "params" : {}
+    },
+    {}
+  ],
+  "generics": [
+    {
+      "id" : 2,
+      "class" : "Food",
+      "params" : {}
+    },
+    {}
+  ],
+  "obstacles": [
+    {
+      "id" : 8,
+      "class" : "Wall",
+      "params" : {}
+    },
+    {}
+  ]
+}
+
+#### UPDATE ####
+{
+  "sim_params" : {
+    "cohesion" : 1.9,
+    "neighborhood" : 20
+  },
+  "agents_update" : [
+    {
+      "id" : 1,
+      "class" : "Flocker",
+      "params" : {
+        "position" : {
+          "x" : 1,
+          "y" : 2,
+          "z" : 1
+        }
+      }
+    }
+  ],
+  "agents_create" : [
+    {
+      "quantity" : 1,
+      "class" : "Flocker",
+      "params" : {}
+    }
+  ],
+  "agents_delete" : [
+    {
+      "id" : 1,
+      "class" : "Flocker"
+    }
+  ],
+  "generics_update" : [
+    {
+      "id" : 0,
+      "class" : "Cibo",
+      "params" : {
+        "scimità" : 10000,
+        "breathtaking" : true
+      }
+    }
+  ],
+  "generics_create" : [
+    {
+      "quantity" : 1,
+      "class" : "Cibo",
+      "params" : {
+        "scimità" : 10000,
+        "breathtaking" : true
+      }
+    }
+  ],
+  "generics_delete" : [
+    {
+      "id" : 0,
+      "class" : "Cibo"
+    }
+  ],
+  "obstacles_create" : [
+    {
+      "class" : "Wall",
+      "params" : {
+        "position" : [
+          {
+            "x" : 10,
+            "y" : 10
+          },
+          {
+            "x" : 9,
+            "y" : 9
+          }
+        ]
+      }
+    }
+  ],
+  "obstacles_delete" : [
+    {
+      "id" : 5,
+      "class" : "Wall",
+    }
+  ]
+}

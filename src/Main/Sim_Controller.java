@@ -6,28 +6,29 @@ package Main;
 
 import Events.EventArgs.*;
 import Steppables.StepInitiator;
-import Steppables.StepValidator;
+import Steppables.StepPublisher;
+import Wrappers.GUIState_wrapper;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import sim.display.RateAdjuster;
 import sim.display.SimpleController;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
-import java.nio.ByteBuffer;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Sim_Controller {
 
-	// CONTROLLERS
-	private static final Comms_Controller comms_controller = new Comms_Controller();
-
 	// SIMULATION
 	private static JSONObject sim_list = new JSONObject();
-	private static SimStateWithController simulation;
+	private JSONObject current_sim = new JSONObject();
+	private static Pair<Boolean, JSONObject> update = new Pair<>(false, new JSONObject());
+	private static GUIState_wrapper simulation;
 	private static SimState simstate;
-	private static Pair<Boolean, JSONObject> update;
 	private static byte[] step;
 
 	// STATE
@@ -48,24 +49,24 @@ public class Sim_Controller {
 		}
 	}
 
-	// MESSAGE BUFFERS
-	private static ByteBuffer messageBB;
-	private static ByteBuffer responseBB;
-
 	// VARIABLES
-	private static int simTopics = 1;
+	public static int simTopics = 60;
 	private static double simStepRate;
 	private static double clientStepRate = 60;
 	private static int currentSteps;
 	private static long lastRateTime;
 	private static long RATE_UPDATE_INTERVAL = 5000L;
 
+	// CONTROLLERS
+	private static final Comms_Controller comms_controller = new Comms_Controller();
+
 	// EVENT HANDLES
 	private static SimStateEnum onCheckStatusRequestEventHandle(Object source, CheckStatusEventArgs e){
 		return CheckStatus();
 	}
-	private static JSONObject onSimListRequestEventHandle(Object source, SimListRequestEventArgs e){
-		sim_list.put("sim_list", new JSONArray());
+	private static JSONObject onSimListRequestEventHandle(Object source, SimListRequestEventArgs e) throws IOException, ParseException {
+		JSONParser parser = new JSONParser();
+		sim_list = (JSONObject) parser.parse(new FileReader("Simulation list example.json"));
 		return sim_list;
 	}
 	private static boolean onSimInitializeEventHandle(Object source, SimInitializeEventArgs e) throws InstantiationException, IllegalAccessException {
@@ -80,13 +81,13 @@ public class Sim_Controller {
 
 	// STEPPABLE/STOPPABLE TO WRAP STEP
 	private static StepInitiator stepInitiator;
-	private static StepValidator stepValidator;
 	private static RateAdjuster rateAdjuster;
+	private static StepPublisher stepPublisher;
 	private static Steppable stepRatePrinter;
 	private static Stoppable stepInitiator_stoppable;
-	private static Stoppable stepValidator_stoppable;
 	private static Stoppable rateAdjuster_stoppable;
 	private static Stoppable stepRatePrinter_stoppable;
+	private static Stoppable stepPublisher_stoppable;
 
 
 	// SUPPORT METHODS
@@ -98,31 +99,24 @@ public class Sim_Controller {
 		String class_name = (String)payload.get("name");
 		Class<?> clazz;
 		try {
-			clazz = Class.forName("sim.app." + class_name.toLowerCase() + "." + class_name + "WithUI");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		}
-		// TODO instantiate right simulation with controller
-		simulation = new SimStateWithController(clazz);
+			clazz = Class.forName("Sim." + class_name.toLowerCase() + "." + class_name + "ForUnity");
+		} catch (ClassNotFoundException e) { e.printStackTrace(); return false;	}
+		simulation = (GUIState_wrapper)clazz.newInstance();
 		simstate = simulation.state;
-		simulation.createController();
-		// TODO init sim
 
-		System.out.println("Sim type: " + class_name);
+		// INIT PROTO & SIM
+		simulation.initPrototype(payload);
+		simulation.initSimulationState();
 
 		// schedule steppables
-		stepInitiator_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepInitiator);
-		rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyBefore(rateAdjuster);
-		stepRatePrinter_stoppable = simulation.scheduleRepeatingImmediatelyBefore(stepRatePrinter);
-		stepValidator_stoppable = simulation.scheduleRepeatingImmediatelyBefore(stepValidator);
-
+		stepInitiator_stoppable = simulation.scheduleRepeatingImmediatelyBefore(stepInitiator);
+		stepPublisher_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepPublisher);
+		stepRatePrinter_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepRatePrinter);
+		rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
 		return true;
 	}
 	private static boolean SimUpdate(@NotNull JSONObject payload) {
-
-		// TODO
-
+		update = new Pair<>(true, payload);
 		return true;
 	}
 	private static boolean SimCommand(@NotNull JSONObject payload) {
@@ -130,20 +124,20 @@ public class Sim_Controller {
 		int command = ((Long)payload.get("command")).intValue();
 
 		switch (command) {
+			case 0:
+				return simulation.step();
 			case 1:
-				System.out.println("command: " +command);
-				if (simulation.c.getPlayState() == SimpleController.PS_STOPPED) { simulation.c.pressPlay(); } else if (simulation.c.getPlayState() == SimpleController.PS_PAUSED) {  simulation.c.pressPause(); }
-				return simulation.c.getPlayState() == SimpleController.PS_PLAYING;
+				if (GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED) { GUIState_wrapper.c.pressPlay(); } else if (GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED) {  GUIState_wrapper.c.pressPause(); }
+				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PLAYING;
 			case 2:
-				if(simulation.c.getPlayState() != SimpleController.PS_PAUSED) { simulation.c.pressPause(); }
-				return simulation.c.getPlayState() == SimpleController.PS_PAUSED;
+				if(GUIState_wrapper.c.getPlayState() != SimpleController.PS_PAUSED) { GUIState_wrapper.c.pressPause(); }
+				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED;
 			case 3:
-				simulation.c.pressStop();
+				GUIState_wrapper.c.pressStop();
 				stepInitiator_stoppable.stop();
-				stepValidator_stoppable.stop();
 				rateAdjuster_stoppable.stop();
 				stepRatePrinter_stoppable.stop();
-				return simulation.c.getPlayState() == SimpleController.PS_STOPPED;
+				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED;
 			case 4:
 				int speed = (int)payload.get("value");
 				switch (speed) {
@@ -200,9 +194,9 @@ public class Sim_Controller {
 		comms_controller.simCommandEventHandler.subscribe(Sim_Controller::onSimCommandEventHandle);
 
 		// init steppable
-		stepInitiator = new StepInitiator(simulation, update);
-		stepValidator = new StepValidator(step);
-		rateAdjuster = new RateAdjuster(clientStepRate);
+		stepInitiator = new StepInitiator(Sim_Controller.simulation, Sim_Controller.update);
+		stepPublisher = new StepPublisher(Sim_Controller.step);
+		rateAdjuster = new RateAdjuster(Sim_Controller.clientStepRate);
 		stepRatePrinter = new Steppable() {
 			@Override
 			public void step(SimState simState) {
@@ -210,7 +204,4 @@ public class Sim_Controller {
 			}
 		};
 	}
-
-
-
 }

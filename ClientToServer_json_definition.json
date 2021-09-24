@@ -1,0 +1,291 @@
+###### MESSAGE_STRUCTURE ######
+{
+  "sender" : "Loocio",
+  "op" : "001",
+  "payload" : {}
+}
+
+#### OPERATIONS_LIST ####
+OP 000 CHECK_STATUS
+OP 001 CONNECTION
+OP 002 DISCONNECTION
+OP 003 SIM_LIST_REQUEST
+OP 004 SIM_INITIALIZE
+OP 005 SIM_UPDATE
+OP 006 SIM_COMMAND
+OP 007 RESPONSE
+OP 999 CLIENT_ERROR
+
+#### OP 000 - CHECK_STATUS_PAYLOAD ####
+{
+  "type" : "heartbeat"
+}
+#### OP 001 - CONNECTION_PAYLOAD ###
+{
+  "admin" : true,
+  "sys_info" : "..."
+}
+#### OP 002 - DISCONNECTION_PAYLOAD ###
+{
+  "keep_on" : true
+}
+#### OP 003 - SIM_LIST_REQUEST_PAYLOAD ####
+{}
+#### OP 004 - SIM_INITIALIZE_PAYLOAD ####
+{
+  "id": 0,
+  "name": "Flockers",
+  "description": "....",
+  "type": "CONTINUOUS",
+  "dimensions": [
+    {
+      "name": "x",
+      "default": 500
+    },
+    {
+      "name": "y",
+      "default": 500
+    },
+    {
+      "name": "z",
+      "default": 500
+    }
+  ],
+  "sim_params": [
+    {
+      "name": "cohesion",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "avoidance",
+      "type": "System.Single",
+      "default": "0.5"
+    },
+    {
+      "name": "randomness",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "consistency",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "momentum",
+      "type": "System.Single",
+      "default": 1
+    },
+    {
+      "name": "neighborhood",
+      "type": "System.Int32",
+      "default": 10
+    },
+    {
+      "name": "jump",
+      "type": "System.Single",
+      "default": 0.7
+    }
+  ],
+  "agent_prototypes": [
+    {
+      "class": "Flocker",
+      "default" : 10,
+      "params": [
+        {
+          "name" : "position",
+          "type": "System.Position",
+          "editable_in_play": true,
+          "editable_in_pause": true,
+          "default" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+          }
+        }
+      ]
+    }
+  ],
+  "generic_prototypes": [
+    {
+      "class": "Home",
+      "default" : 1,
+      "params": [
+        {
+          "name": "scimità",
+          "type": "System.Int32",
+          "editable_in_play": true,
+          "editable_in_pause": true,
+          "default": 9001
+        },
+        {
+          "name" : "position",
+          "type": "System.Cell",
+          "editable_in_play": true,
+          "editable_in_pause": true,
+          "default" : [
+            {
+              "x" : 2,
+              "y" : 2,
+              "z" : 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+#### OP 005 - SIM_UPDATE_PAYLOAD ####
+{
+  "sim_params" : {
+    "cohesion" : 1.9,
+    "neighborhood" : 20
+  },
+  "agents_update" : [
+    {
+      "id" : 1,
+      "class" : "Flocker",
+      "params" : {}
+    }
+  ],
+  "agents_create" : [
+    {
+      "count" : 1,
+      "class" : "Flocker",
+      "params" : {}
+    }
+  ],
+  "agents_delete" : [
+    {
+      "id" : 1,
+      "class" : "Flocker"
+    }
+  ],
+  "generics_update" : [
+    {
+      "id" : 0,
+      "class" : "Cibo",
+      "params" : {
+        "position" : [
+          {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+          }
+        ],
+        "scimità" : 10000,
+        "breathtaking" : true
+      }
+    }
+  ],
+  "generics_create" : [
+    {
+      "count" : 1,
+      "class" : "Cibo",
+      "params" : {
+        "scimità" : 10000,
+        "breathtaking" : true
+      }
+    }
+  ],
+  "generics_delete" : [
+    {
+      "id" : 0,
+      "class" : "Cibo"
+    }
+  ],
+  "obstacles_create" : {
+    "cells" : [
+      {
+        "x" : 10,
+        "y" : 10
+      },
+      {
+        "x" : 9,
+        "y" : 9
+      }
+    ]
+  },
+  "obstacles_delete" : {
+    "cells" : [
+      {
+        "x" : 10,
+        "y" : 10
+      },
+      {
+        "x" : 9,
+        "y" : 9
+      }
+    ]
+  }
+}
+#### OP 006 - SIM_COMMAND_PAYLOAD ####
+{
+  "command" : 0,
+  "value" : "..."
+}
+#### OP 007 - RESPONSE_PAYLOAD ####
+{
+  "response_to_op" : "001",
+  "reponse" : "..."
+}
+#### OP 999 - CLIENT_ERROR_PAYLOAD ####
+{
+  "error_type" : 0,
+  "alive" : true,
+  "sys_info" : "..."
+}
+
+##DIMENSION##
+{
+  "name" : "width",
+  "value" : 600
+}
+##SIM_PARAM##
+{
+  "name" : "cohesion",
+  "value" : 0.5
+}
+##AGENT_CLASS##
+{
+  "name" : "wolf",
+  "params" : []
+}
+##PARAM##
+{
+  "name" : "hunger",
+  "value" : 10
+}
+##GENERIC_CLASS##
+{
+  "name" : "food",
+  "params" : []
+}
+##SIM_PARAM##
+{
+  "name" : "neighborhood",
+  "value" : 20
+}
+##AGENT##
+{
+  "class" : "wolf",
+  "id" : null,
+  "params" : []
+}
+##GENERIC##
+{
+  "class" : "food",
+  "id" : 2,
+  "params" : []
+}
+##OBSTACLE##
+{
+  "op" : 0,
+  "cells" : []
+}
+##CELL##
+{
+  "dim_0" : 123,
+  "dim_1" : 221
+}

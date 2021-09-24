@@ -4,18 +4,18 @@
 
 package Steppables;
 
+import Wrappers.GUIState_wrapper;
 import javafx.util.Pair;
 import org.json.simple.JSONObject;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import Main.SimStateWithController;
 
 public class StepInitiator implements Steppable {
     private static final long serialVersionUID = 1L;
-    private SimStateWithController simulation;
+    private GUIState_wrapper simulation;
     private Pair<Boolean, JSONObject> update;
 
-    public StepInitiator(SimStateWithController simulation, Pair<Boolean, JSONObject> update) {
+    public StepInitiator(GUIState_wrapper simulation, Pair<Boolean, JSONObject> update) {
         this.simulation = simulation;
         this.update = update;
     }
@@ -23,18 +23,8 @@ public class StepInitiator implements Steppable {
     public void step(SimState state) {
 
         // check updates
-        //if (update.getKey()) {
-
-            // update sim
-
-                // update sim params
-
-                // update agents
-
-                // update generics
-
-                // update obstacles
-
-        //}
+        if (update.getKey()) {
+            simulation.updateSimulationState(update.getValue());
+        }
     }
 }

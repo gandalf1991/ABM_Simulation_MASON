@@ -2,6 +2,9 @@ package Events.Handlers;
 
 import Events.JSONIEvent;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class JSONEventHandler<TEventArgs>
@@ -19,7 +22,15 @@ public class JSONEventHandler<TEventArgs>
     public JSONObject invoke(Object source, TEventArgs eventArgs)
     {
         if (eventDelegateArray.size()>0)
-            eventDelegateArray.forEach(p -> responses.add(p.invoke(source, eventArgs)));
+            eventDelegateArray.forEach(p -> {
+                try {
+                    responses.add(p.invoke(source, eventArgs));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            });
         return responses.get(0);
     }
     public void close()

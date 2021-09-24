@@ -1,0 +1,137 @@
+###### MESSAGE_STRUCTURE ######
+{
+  "sender" : "MASON",
+  "op" : "006",
+  "payload" : {}
+}
+
+#### OPERATIONS_LIST ####
+OP 000 CHECK_STATUS
+OP 007 RESPONSE
+OP 998 SERVER_ERROR
+
+#### OP 000 - CHECK_STATUS_PAYLOAD ####
+{
+  "type" : "heartbeat"
+}
+
+#### OP 007 - RESPONSE_PAYLOAD ####
+{
+  "response_to_op" : 003,
+  "result" : true,
+  "error" : null,
+  "payload_data" : {}
+}
+
+#### OP 008 - NEW_ADMIN_PAYLOAD ####
+{
+  "new_admin" : "GerryBarry"
+}
+
+#### OP 998 - SERVER_ERROR_PAYLOAD ####
+{
+  "error_type" : 0,
+  "alive" : true,
+  "sys_info" : "..."
+}
+
+####SIMULATION_MESSAGE####
+{
+  "id" : 0,
+  "name" : "Hunter-Prey",
+  "description" : "....",
+  "type" : "qualitative",
+  "dimensions" : [],
+  "sim_params" : [],
+  "agent_prototypes" : [
+    {
+      "name" : "Wolf",
+      "params": []
+    },
+    {
+      "name" : "Sheep",
+      "params": []
+    }
+  ],
+  "generic_prototypes" : [
+    {
+      "name" : "food",
+      "params" : []
+    },
+    {
+      "name" : "water",
+      "params" : []
+    },
+    {
+      "name" : "grass",
+      "params" : []
+    }
+  ]
+}
+##DIMENSION##
+{
+  "name" : "x",
+  "type" : "System.Single",
+  "editable_in_play" : false,
+  "editable_in_pause" : false,
+  "value" : 500
+}
+##SIM_PARAMS##
+{
+  "name" : "cohesion",
+  "type" : "System.Single",
+  "editable_in_play" : true,
+  "editable_in_pause" : true,
+  "value" : 1.0
+}
+##AGENT_CLASS##
+{
+  "name" : "Wolf",
+  "params": []
+}
+##GENERIC_CLASS##
+{
+  "name" : "pheromone_to_home",
+  "params" : []
+}
+##PARAMS##
+{
+  "name" : "hunger",
+  "type" : "System.Int32",
+  "editable_in_play" : true,
+  "editable_in_pause" : true,
+  "value" : 1.2
+}
+
+####SIM_STEP####
+{
+  "id" : 10,
+  "agents_update" : [],
+  "generic_update" : []
+}
+
+####XXXXX_UPDATE####
+{
+  "class" : "Wolf",
+  "id" : 100,
+  "params" : []
+}
+
+####SIM_LIST_MESSAGE####
+JSON containing all simulations
+
+####STEP_MESSAGE####
+1000|1000  |500    |100         |id|0|0|0|       ...x1000... |id|0|0|0|        ...x500....   |id|0|0|0|0.6|       ......x100...... |
+step|#sheep|#wolves|#pheromone  |params of class "#sheep"    |coordinates of class "#wolves" |coordinates of class "#pheromone"    |
+
+1. Numero di Step
+2. (#NA) Numeri di elementi che variano rispetto i (#NA) tipi di Agenti       (#NA) codificata nel JSON della SIM
+3. (#NO) Numeri di elementi che variano rispetto i (#NO) tipi di Oggetti      (#NO) codificata nel JSON della SIM
+4. #NA Agenti
+  4.1 ID
+  4.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM
+  4.3 (#PA-NA) di parametri                      (#PA-NA) codificata nel JSON della SIM
+5. #NO Oggetti
+  5.1 ID
+  5.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM
+  5.3 (#PO-NA) di parametri                      (#PO-NO) codificata nel JSON della SIM

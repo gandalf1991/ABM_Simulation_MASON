@@ -1,0 +1,220 @@
+{
+  "list": [
+    {
+      "id": 0,
+      "name": "Flockers",
+      "description": "....",
+      "type": "CONTINUOUS",
+      "dimensions": [
+        {
+          "name": "x",
+          "type": "System.Int32",
+          "default": 500
+        },
+        {
+          "name": "y",
+          "type": "System.Int32",
+          "default": 500
+        },
+        {
+          "name": "z",
+          "type": "System.Int32",
+          "default": 500
+        }
+      ],
+      "sim_params": [
+        {
+          "name": "cohesion",
+          "type": "System.Single",
+          "default": 1
+        },
+        {
+          "name": "avoidance",
+          "type": "System.Single",
+          "default": "0.5"
+        },
+        {
+          "name": "randomness",
+          "type": "System.Single",
+          "default": 1
+        },
+        {
+          "name": "consistency",
+          "type": "System.Single",
+          "default": 1
+        },
+        {
+          "name": "momentum",
+          "type": "System.Single",
+          "default": 1
+        },
+        {
+          "name": "neighborhood",
+          "type": "System.Int32",
+          "default": 10
+        },
+        {
+          "name": "jump",
+          "type": "System.Single",
+          "default": 0.7
+        }
+      ],
+      "agent_prototypes": [
+        {
+          "class": "Flocker",
+          "default": 10,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Position",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          ]
+        }
+      ],
+      "generic_prototypes": []
+    },
+    {
+      "id": 1,
+      "name": "AntsForage",
+      "description": "....",
+      "type": "DISCRETE",
+      "dimensions": [
+        {
+          "name": "x",
+          "type": "System.Int32",
+          "default": 500
+        },
+        {
+          "name": "y",
+          "type": "System.Int32",
+          "default": 500
+        }
+      ],
+      "sim_params": [
+        {
+          "name": "evaporationConstant",
+          "type": "System.Single",
+          "default": 0.999
+        },
+        {
+          "name": "reward",
+          "type": "System.Single",
+          "default": 1.0
+        },
+        {
+          "name": "updateCutDown",
+          "type": "System.Single",
+          "default": 0.9
+        },
+        {
+          "name": "momentumProbability",
+          "type": "System.Single",
+          "default": 0.8
+        },
+        {
+          "name": "randomActionProbability",
+          "type": "System.Single",
+          "default": 0.1
+        }
+      ],
+      "agent_prototypes": [
+        {
+          "class": "Ant",
+          "default": 100,
+          "params": [
+            {
+              "name": "reward",
+              "type": "System.Single",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": 0.9
+            },
+            {
+              "name": "hasFoodItem",
+              "type": "System.Boolean",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": false
+            },
+            {
+              "name": "position",
+              "type": "System.Position",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {}
+            }
+          ]
+        }
+      ],
+      "generic_prototypes": [
+        {
+          "class": "Home",
+          "default": 1,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cell",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": []
+            }
+          ]
+        },
+        {
+          "class": "Food",
+          "default": 1,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cell",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": []
+            }
+          ]
+        },
+        {
+          "class": "PheromoneToHome",
+          "default": 0,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cell",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": []
+            }
+          ]
+        },
+        {
+          "class": "PheromoneToFood",
+          "default": 0,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cell",
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

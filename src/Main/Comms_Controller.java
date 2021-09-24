@@ -11,14 +11,21 @@ import Events.Handlers.StateEventHandler;
 import javafx.util.Pair;
 import org.eclipse.paho.client.mqttv3.*;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import static Utils.Utils.compressMessage;
 
@@ -48,12 +55,20 @@ public class Comms_Controller {
 	private static String[] IN_TOPICS = {"all_to_mason"};
 	private static String[] OUT_TOPICS = {"mason_to_all"};
 	private static ArrayList<String> CLIENTS_TOPICS = new ArrayList<>();
+	private static ArrayList<String> STEPS_TOPICS = new ArrayList<String>(){{
+		for(int i = 0; i < Sim_Controller.simTopics; i++){
+			this.add("Topic"+i);
+		}
+	}};
+
+	// THREADS
+	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(6);
 
 	// USERS INFOS
 	private HashMap<String, User> USERS = new HashMap<>();
 
 	//OPERATIONS LIST
-	private HashMap<String, String> IN_OPS = new HashMap<String, String>() {{
+	private static HashMap<String, String> IN_OPS = new HashMap<String, String>() {{
 		put("000", "CHECK_STATUS");
 		put("001", "CONNECTION");
 		put("002", "DISCONNECTION");
@@ -64,7 +79,7 @@ public class Comms_Controller {
 		put("007", "RESPONSE");
 		put("999", "CLIENT_ERROR");
 	}};
-	private HashMap<String, String> OUT_OPS = new HashMap<String, String>() {{
+	private static HashMap<String, String> OUT_OPS = new HashMap<String, String>() {{
 		put("000", "CHECK_STATUS");
 		put("007", "RESPONSE");
 		put("008", "NEW_ADMIN");
@@ -78,12 +93,12 @@ public class Comms_Controller {
 	}
 
 	// RESPONSE VARIABLES
-	ByteBuffer responseBB;
-	private String[] response_topics;
-	JSONObject responseJson = new JSONObject();
-	JSONObject responsePayload = new JSONObject();
-	JSONObject requestJson = new JSONObject();
-	JSONObject request_payload = new JSONObject();
+	private static ByteBuffer responseBB;
+	private static String[] response_topics;
+	private static JSONObject responseJson = new JSONObject();
+	private static JSONObject responsePayload = new JSONObject();
+	private static JSONObject requestJson = new JSONObject();
+	private static JSONObject request_payload = new JSONObject();
 
 	// EVENTS
 	public StateEventHandler<CheckStatusEventArgs> checkStatusEventArgsEventHandler = new StateEventHandler<>();
@@ -240,7 +255,7 @@ public class Comms_Controller {
 		}
 
 	}
-	public void onSimListRequest(String op, String sender, JSONObject request){
+	public void onSimListRequest(String op, String sender, JSONObject request) throws IOException, ParseException {
 		boolean result;
 		JSONObject sim_list;
 		String error;
@@ -379,7 +394,8 @@ public class Comms_Controller {
 		System.out.println(getClass().getSimpleName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | " + username + " doesn't exist.");
 		return new Pair<Boolean, String>(false, "");
 	}
-	public void publishMessage(JSONObject Json, String[] topics) {
+
+	public static void publishMessage(JSONObject Json, String[] topics) {
 		try {
 			responseBB = ByteBuffer.allocate(Json.toString().length() * 2);
 			responseBB.order(ByteOrder.LITTLE_ENDIAN);
@@ -390,11 +406,17 @@ public class Comms_Controller {
 			responseBB.clear();
 
 			message.setQos(0);
-			for (String topic: topics ) {
-				Comm_client.publish(topic, message);
-			}
-		} catch(Exception e) {
 
+			executor.execute(() -> {
+				for (String topic: topics) {
+					try {
+						Comm_client.publish(topic, message);
+					} catch (MqttException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		} catch(Exception e) {
 			System.out.println("msg "+e.getMessage());
 			System.out.println("loc "+e.getLocalizedMessage());
 			System.out.println("cause "+e.getCause());
@@ -402,10 +424,27 @@ public class Comms_Controller {
 			e.printStackTrace();
 		}
 	}
-	public void publishStep(byte[] step, int currentTopic) {
-		//publishMessage(step, "Topic" + currentTopic);
+	public static void publishStep(long step_id, byte[] step) {
+		try {
+			MqttMessage message = new MqttMessage(compressMessage(step));
+			message.setQos(0);
+			executor.execute(() -> {
+				try {
+					Sim_client.publish("Topic" + (step_id-1)%Sim_Controller.simTopics, message);
+				} catch (MqttException e) {
+					e.printStackTrace();
+				}
+			});
+		} catch(Exception e) {
+			System.out.println("msg "+e.getMessage());
+			System.out.println("loc "+e.getLocalizedMessage());
+			System.out.println("cause "+e.getCause());
+			System.out.println("excep "+e);
+			e.printStackTrace();
+		}
 	}
-	public void publishPrivateResponse(String sender, String op, boolean result, String error, JSONObject payload_data){
+
+	public static void publishPrivateResponse(String sender, String op, boolean result, String error, JSONObject payload_data){
 		// fill responsePayload
 		responsePayload.put("response_to_op", op);
 		responsePayload.put("result", result);
@@ -420,12 +459,12 @@ public class Comms_Controller {
 		publishMessage(responseJson, response_topics);
 		responseJson.clear();
 		responsePayload.clear();
-		System.out.println(getClass().getSimpleName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PRIVATE RESPONSE to " + sender + " for " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
+		System.out.println(Comms_Controller.class + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PRIVATE RESPONSE to " + sender + " for " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
 	}
-	public void publishPrivateResponse(String sender, String op, boolean result, String error){
+	public static void publishPrivateResponse(String sender, String op, boolean result, String error){
 		publishPrivateResponse(sender, op, result, error, new JSONObject());
 	}
-	public void publishPublicResponse(String sender, String op, boolean result, String error, JSONObject request_payload){
+	public static void publishPublicResponse(String sender, String op, boolean result, String error, JSONObject request_payload){
 		// fill responsePayload
 		responsePayload.put("response_to_op", op);
 		responsePayload.put("result", result);
@@ -442,7 +481,6 @@ public class Comms_Controller {
 		publishMessage(responseJson, response_topics);
 		responseJson.clear();
 		responsePayload.clear();
-		System.out.println(getClass().getSimpleName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PUBLIC RESPONSE for " + sender + "'s " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
+		System.out.println(Comms_Controller.class + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PUBLIC RESPONSE for " + sender + "'s " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
 	}
-
 }
