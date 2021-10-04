@@ -10,20 +10,12 @@ import sim.util.Int2D;
 
 import java.util.ArrayList;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Food_wrapper extends SimObject_wrapper {
-    static private final GUIState_wrapper.SimObjectType type = GUIState_wrapper.SimObjectType.AGENT;
-    static private final String class_name = "Food";
     static private int quantity = 0;
-    static private SortedSet<Integer> empty_IDs;
+    static private SortedSet<Integer> empty_IDs = new TreeSet<>();;
 
-    @Override
-    public GUIState_wrapper.SimObjectType getType() {
-        return type;
-    }
-    public String getClass_name() {
-        return class_name;
-    }
     public static int getQuantity() {
         return quantity;
     }
@@ -31,22 +23,33 @@ public class Food_wrapper extends SimObject_wrapper {
         Food_wrapper.quantity = quantity;
     }
 
+    public Food_wrapper() {
+        type = GUIState_wrapper.SimObjectType.GENERIC;
+        class_name = "Food";
+    }
+
     @Override
-    public void map(Object toMap, JSONArray params) {
-        Pair<Integer, Int2D> mapping = (Pair<Integer, Int2D>)toMap;
-        ID = mapping.getKey();
-        Object[] parameters = params.toArray();
-        for (Object p : parameters) {
-            if(((JSONObject)p).get("name").equals("position")) {
-                this.params.put("position", new Int2D(mapping.getValue().x, mapping.getValue().y));
-            }
+    public void map(Object toMap) {
+        Int2D mapping = (Int2D)toMap;
+        if (Food_wrapper.empty_IDs.size() > 0) {
+            ID = Food_wrapper.empty_IDs.first();
+            Food_wrapper.empty_IDs.remove(ID);
         }
+        else {
+            ID = quantity;
+        }
+        this.params.put("position", new Int2D(mapping.x, mapping.y));
     }
     @Override
-    public void init(JSONArray params) {}
-    @Override
     public void create(JSONObject params) {
-        ID = (Food_wrapper.empty_IDs.size() > 0) ? Food_wrapper.empty_IDs.first() : quantity++;
+        if (Food_wrapper.empty_IDs.size() > 0) {
+            ID = Food_wrapper.empty_IDs.first();
+            Food_wrapper.empty_IDs.remove(ID);
+        }
+        else {
+            ID = quantity;
+        }
+        ++quantity;
         ArrayList<Int2D> cells = new ArrayList<>();
         for (Object c : (JSONArray)params.get("position")) {
             AntsForage.sites.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = AntsForage.FOOD;
@@ -59,10 +62,15 @@ public class Food_wrapper extends SimObject_wrapper {
 
     }
     @Override
+    public void updateWrapper() {}
+    @Override
+    public void reset() {}
+    @Override
     public void delete() {
         for (Int2D c: (ArrayList<Int2D>)params.get("position")) {
             AntsForage.sites.field[c.x][c.y] = 0;
         }
+        GUIState_wrapper.getGENERICS().remove(new Pair<>(this.ID, this.getClass_name()));
         empty_IDs.add(ID);
         --quantity;
     }

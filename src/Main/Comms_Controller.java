@@ -28,6 +28,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import static Utils.Utils.compressMessage;
+import static java.lang.System.currentTimeMillis;
 
 public class Comms_Controller {
 
@@ -60,9 +61,6 @@ public class Comms_Controller {
 			this.add("Topic"+i);
 		}
 	}};
-
-	// THREADS
-	private static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(6);
 
 	// USERS INFOS
 	private HashMap<String, User> USERS = new HashMap<>();
@@ -112,6 +110,7 @@ public class Comms_Controller {
 		try {
 			Comm_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Comm_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
+			connOpts.setKeepAliveInterval(65535);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
 			connOpts.setMaxInflight(100);
@@ -189,6 +188,7 @@ public class Comms_Controller {
 		try {
 			Sim_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Sim_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
+			connOpts.setKeepAliveInterval(65535);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
 			connOpts.setMaxInflight(10000);
@@ -407,15 +407,13 @@ public class Comms_Controller {
 
 			message.setQos(0);
 
-			executor.execute(() -> {
-				for (String topic: topics) {
-					try {
-						Comm_client.publish(topic, message);
-					} catch (MqttException e) {
-						e.printStackTrace();
-					}
+			for (String topic: topics) {
+				try {
+					Comm_client.publish(topic, message);
+				} catch (MqttException e) {
+					e.printStackTrace();
 				}
-			});
+			}
 		} catch(Exception e) {
 			System.out.println("msg "+e.getMessage());
 			System.out.println("loc "+e.getLocalizedMessage());
@@ -425,16 +423,16 @@ public class Comms_Controller {
 		}
 	}
 	public static void publishStep(long step_id, byte[] step) {
+
 		try {
 			MqttMessage message = new MqttMessage(compressMessage(step));
+			//System.out.println("\nStep send: "+ step_id + " on topic " + (step_id-1)%Sim_Controller.simTopics);
 			message.setQos(0);
-			executor.execute(() -> {
-				try {
-					Sim_client.publish("Topic" + (step_id-1)%Sim_Controller.simTopics, message);
-				} catch (MqttException e) {
-					e.printStackTrace();
-				}
-			});
+			try {
+				Sim_client.publish("Topic" + (step_id-1)%Sim_Controller.simTopics, message);
+			} catch (MqttException e) {
+				e.printStackTrace();
+			}
 		} catch(Exception e) {
 			System.out.println("msg "+e.getMessage());
 			System.out.println("loc "+e.getLocalizedMessage());

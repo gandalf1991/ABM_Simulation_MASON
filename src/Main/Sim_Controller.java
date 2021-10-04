@@ -20,16 +20,54 @@ import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Sim_Controller {
 
 	// SIMULATION
 	private static JSONObject sim_list = new JSONObject();
 	private JSONObject current_sim = new JSONObject();
-	private static Pair<Boolean, JSONObject> update = new Pair<>(false, new JSONObject());
+	private static Update update = new Update(false, new JSONObject());
 	private static GUIState_wrapper simulation;
 	private static SimState simstate;
 	private static byte[] step;
+	private static Class<?> clazz;
+
+	// THREADS
+	public static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(5000);
+
+	// GETTERS/SETTERS
+	public static GUIState_wrapper getSimulation() {
+		return simulation;
+	}
+	public static void setSimulation(GUIState_wrapper simulation) {
+		Sim_Controller.simulation = simulation;
+	}
+	public static Update getUpdate() {
+		return update;
+	}
+	public static void setUpdate(Update update) {
+		Sim_Controller.update = update;
+	}
+	public static double getClientStepRate() {
+		return clientStepRate;
+	}
+	public static void setClientStepRate(double clientStepRate) {
+		Sim_Controller.clientStepRate = clientStepRate;
+	}
+	public static byte[] getStep() {
+		return step;
+	}
+	public static void setStep(byte[] step) {
+		Sim_Controller.step = step;
+	}
+	public static Class<?> getClazz() {
+		return clazz;
+	}
+	public static void setClazz(Class<?> clazz) {
+		Sim_Controller.clazz = clazz;
+	}
 
 	// STATE
 	public static SimStateEnum state = SimStateEnum.NOT_READY;
@@ -97,7 +135,6 @@ public class Sim_Controller {
 	private static boolean SimIntialize(@NotNull JSONObject payload) throws InstantiationException, IllegalAccessException {
 
 		String class_name = (String)payload.get("name");
-		Class<?> clazz;
 		try {
 			clazz = Class.forName("Sim." + class_name.toLowerCase() + "." + class_name + "ForUnity");
 		} catch (ClassNotFoundException e) { e.printStackTrace(); return false;	}
@@ -113,10 +150,11 @@ public class Sim_Controller {
 		stepPublisher_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepPublisher);
 		stepRatePrinter_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepRatePrinter);
 		rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
+
 		return true;
 	}
 	private static boolean SimUpdate(@NotNull JSONObject payload) {
-		update = new Pair<>(true, payload);
+		update = new Update(true, payload);
 		return true;
 	}
 	private static boolean SimCommand(@NotNull JSONObject payload) {
@@ -127,16 +165,14 @@ public class Sim_Controller {
 			case 0:
 				return simulation.step();
 			case 1:
-				if (GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED) { GUIState_wrapper.c.pressPlay(); } else if (GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED) {  GUIState_wrapper.c.pressPause(); }
+				GUIState_wrapper.c.pressPlay();
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PLAYING;
 			case 2:
-				if(GUIState_wrapper.c.getPlayState() != SimpleController.PS_PAUSED) { GUIState_wrapper.c.pressPause(); }
+				GUIState_wrapper.c.pressPause();
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED;
 			case 3:
 				GUIState_wrapper.c.pressStop();
-				stepInitiator_stoppable.stop();
-				rateAdjuster_stoppable.stop();
-				stepRatePrinter_stoppable.stop();
+				resetSimulation();
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED;
 			case 4:
 				int speed = (int)payload.get("value");
@@ -182,7 +218,11 @@ public class Sim_Controller {
 			System.out.println("Step: " + simstate.schedule.getSteps() + " - " + simStepRate + " steps/s.");
 		}
 	}
-
+	private static boolean resetSimulation(){
+		simulation.state.schedule.reset();
+		simulation.resetSimulation();
+		return true;
+	}
 
 	public static void main(String[] args) {
 
@@ -194,14 +234,15 @@ public class Sim_Controller {
 		comms_controller.simCommandEventHandler.subscribe(Sim_Controller::onSimCommandEventHandle);
 
 		// init steppable
-		stepInitiator = new StepInitiator(Sim_Controller.simulation, Sim_Controller.update);
-		stepPublisher = new StepPublisher(Sim_Controller.step);
-		rateAdjuster = new RateAdjuster(Sim_Controller.clientStepRate);
+		stepInitiator = new StepInitiator();
+		stepPublisher = new StepPublisher();
+		rateAdjuster = new RateAdjuster(Sim_Controller.getClientStepRate());
 		stepRatePrinter = new Steppable() {
 			@Override
 			public void step(SimState simState) {
 				getSimStepRate();
 			}
 		};
+
 	}
 }

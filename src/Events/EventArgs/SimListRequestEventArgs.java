@@ -1,3 +1,7 @@
+/*
+ 	Written by Pietro Russo
+*/
+
 package Events.EventArgs;
 
 import org.json.simple.JSONObject;

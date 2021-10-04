@@ -16,6 +16,7 @@
       <root url="jar://$PROJECT_DIR$/lib/org.eclipse.paho.client.mqttv3-1.2.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/portfolio.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/vecmath.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jol-cli-latest.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

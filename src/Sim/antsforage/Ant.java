@@ -6,24 +6,26 @@
 
 package Sim.antsforage;
 
+import Sim.antsforage.wrappers.PheromoneToFood_wrapper;
+import Sim.antsforage.wrappers.PheromoneToHome_wrapper;
+import Wrappers.GUIState_wrapper;
+import javafx.util.Pair;
 import sim.util.*;
 import sim.engine.*;
 
 
-public class Ant implements Steppable  {
+public class Ant implements Steppable  {                                                            // MODIFIED to use floats
     private static final long serialVersionUID = 1;
 
     public boolean getHasFoodItem() { return hasFoodItem; }
     public void setHasFoodItem(boolean val) { hasFoodItem = val; }
 
-    public int ID;
+    public int ID;                                                                                  // ADDED
     public boolean hasFoodItem = false;
-    public double reward = 0;
-    public int x;
-    public int y;
-    public Int2D last;
+    public float reward = 0;                                                                        // REMOVED int x, int y
+    public Int2D last = new Int2D();
 
-    public Ant(int id, double initialReward){
+    public Ant(int id, float initialReward){                                                        // MODIFIED to include ID
         reward = initialReward;
         ID = id;
     }
@@ -38,46 +40,60 @@ public class Ant implements Steppable  {
         int x = location.x;
         int y = location.y;
                 
-        if (AntsForage.ALGORITHM == AntsForage.ALGORITHM_VALUE_ITERATION)
-            {
+        if (AntsForage.ALGORITHM == AntsForage.ALGORITHM_VALUE_ITERATION) {
             // test all around
-            if (hasFoodItem)  // deposit food pheromone
-                {
-                double max = af.toFoodGrid.field[x][y];
+            if (hasFoodItem)  {             // deposit food pheromone
+                float max = af.toFoodGrid.field[x][y];
                 for(int dx = -1; dx < 2; dx++)
-                    for(int dy = -1; dy < 2; dy++)
-                        {
+                    for(int dy = -1; dy < 2; dy++) {
                         int _x = dx+x;
                         int _y = dy+y;
                         if (_x < 0 || _y < 0 || _x >= AntsForage.GRID_WIDTH || _y >= AntsForage.GRID_HEIGHT) continue;  // nothing to see here
-                        double m = af.toFoodGrid.field[_x][_y] * 
+                        float m = af.toFoodGrid.field[_x][_y] * 
                             (dx * dy != 0 ? // diagonal corners
                             af.diagonalCutDown : af.updateCutDown) +
                             reward;
                         if (m > max) max = m;
-                        }
+                    }
+
+                float v = af.toFoodGrid.field[x][y];
+
                 af.toFoodGrid.field[x][y] = max;
-                }
-            else
-                {
-                double max = af.toHomeGrid.field[x][y];
-                for(int dx = -1; dx < 2; dx++)
-                    for(int dy = -1; dy < 2; dy++)
-                        {
-                        int _x = dx+x;
-                        int _y = dy+y;
-                        if (_x < 0 || _y < 0 || _x >= AntsForage.GRID_WIDTH || _y >= AntsForage.GRID_HEIGHT) continue;  // nothing to see here
-                        double m = af.toHomeGrid.field[_x][_y] * 
-                            (dx * dy != 0 ? // diagonal corners
-                            af.diagonalCutDown : af.updateCutDown) +
-                            reward;
-                        if (m > max) max = m;
-                        }
-                af.toHomeGrid.field[x][y] = max;
+
+                if (v == 0f && max > 0f) {
+                    PheromoneToFood_wrapper ftfw = new PheromoneToFood_wrapper();
+                    ftfw.map(new Int2D(x,y));
+                    GUIState_wrapper.getGENERICS().put(new Pair<>(ftfw.getID(), ftfw.getClass_name()), ftfw);
                 }
             }
-        reward = 0.0;
+            else {
+                float max = af.toHomeGrid.field[x][y];
+                for(int dx = -1; dx < 2; dx++)
+                    for(int dy = -1; dy < 2; dy++) {
+                        int _x = dx+x;
+                        int _y = dy+y;
+                        if (_x < 0 || _y < 0 || _x >= AntsForage.GRID_WIDTH || _y >= AntsForage.GRID_HEIGHT) continue;  // nothing to see here
+                        float m = af.toHomeGrid.field[_x][_y] * 
+                            (dx * dy != 0 ? // diagonal corners
+                            af.diagonalCutDown : af.updateCutDown) +
+                            reward;
+                        if (m > max) max = m;
+                    }
+
+                float v = af.toHomeGrid.field[x][y];
+
+                af.toHomeGrid.field[x][y] = max;
+
+                if (v == 0f && max > 0f) {
+                    PheromoneToHome_wrapper fthw = new PheromoneToHome_wrapper();
+                    fthw.map(new Int2D(x,y));
+                    GUIState_wrapper.getGENERICS().put(new Pair<>(fthw.getID(), fthw.getClass_name()), fthw);
+                }
+
+            }
         }
+        reward = 0.0f;
+    }                                       // ADDED control to create Pheromones wrappers
 
     public void act( final SimState state ) {
         final AntsForage af = (AntsForage)state;
@@ -88,7 +104,7 @@ public class Ant implements Steppable  {
                 
         if (hasFoodItem)  // follow home pheromone
             {
-            double max = AntsForage.IMPOSSIBLY_BAD_PHEROMONE;
+            float max = AntsForage.IMPOSSIBLY_BAD_PHEROMONE;
             int max_x = x;
             int max_y = y;
             int count = 2;
@@ -101,7 +117,7 @@ public class Ant implements Steppable  {
                         _x < 0 || _y < 0 ||
                         _x >= AntsForage.GRID_WIDTH || _y >= AntsForage.GRID_HEIGHT || 
                         af.obstacles.field[_x][_y] == 1) continue;  // nothing to see here
-                    double m = af.toHomeGrid.field[_x][_y];
+                    float m = af.toHomeGrid.field[_x][_y];
                     if (m > max)
                         {
                         count = 2;
@@ -139,7 +155,7 @@ public class Ant implements Steppable  {
             }
         else
             {
-            double max = AntsForage.IMPOSSIBLY_BAD_PHEROMONE;
+            float max = AntsForage.IMPOSSIBLY_BAD_PHEROMONE;
             int max_x = x;
             int max_y = y;
             int count = 2;
@@ -152,7 +168,7 @@ public class Ant implements Steppable  {
                         _x < 0 || _y < 0 ||
                         _x >= AntsForage.GRID_WIDTH || _y >= AntsForage.GRID_HEIGHT || 
                         af.obstacles.field[_x][_y] == 1) continue;  // nothing to see here
-                    double m = af.toFoodGrid.field[_x][_y];
+                    float m = af.toFoodGrid.field[_x][_y];
                     if (m > max)
                         {
                         count = 2;
