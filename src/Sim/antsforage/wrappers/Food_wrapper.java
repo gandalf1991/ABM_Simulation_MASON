@@ -42,6 +42,7 @@ public class Food_wrapper extends SimObject_wrapper {
     }
     @Override
     public void create(JSONObject params) {
+        is_new = true;
         if (Food_wrapper.empty_IDs.size() > 0) {
             ID = Food_wrapper.empty_IDs.first();
             Food_wrapper.empty_IDs.remove(ID);
@@ -62,7 +63,7 @@ public class Food_wrapper extends SimObject_wrapper {
 
     }
     @Override
-    public void updateWrapper() {}
+    public boolean updateWrapper() { return false;}
     @Override
     public void reset() {}
     @Override

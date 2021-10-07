@@ -5,7 +5,6 @@
 package Events.Handlers;
 
 import Events.IEvent;
-
 import java.util.ArrayList;
 
 public class EventHandler<TEventArgs>

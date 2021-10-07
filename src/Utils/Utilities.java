@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
-public class Utils {
+public class Utilities {
 
 
     // METHODS
@@ -73,5 +73,6 @@ public class Utils {
 
         return sign * a; // restore original sign
     }
+
 
 }

@@ -26,6 +26,7 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
 
     @Override
     public void map(Object toMap) {
+        is_new = true;
         if (PheromoneToFood_wrapper.empty_IDs.size() > 0) {
             ID = PheromoneToFood_wrapper.empty_IDs.first();
             PheromoneToFood_wrapper.empty_IDs.remove(ID);
@@ -40,6 +41,7 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
     }
     @Override
     public void create(JSONObject params) {
+        is_new = true;
         if (PheromoneToFood_wrapper.empty_IDs.size() > 0) {
             ID = PheromoneToFood_wrapper.empty_IDs.first();
             PheromoneToFood_wrapper.empty_IDs.remove(ID);
@@ -59,15 +61,17 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
 
     }
     @Override
-    public void updateWrapper() {
+    public boolean updateWrapper() {
         Int2D cell = (Int2D)params.get("position");
         params.put("intensity", AntsForage.toFoodGrid.field[cell.x][cell.y]);
-        if ((float)params.get("intensity") == 0){
-            this.delete();
+        if ((float)params.get("intensity") <= 0.001f){
+            return true;
         }
+        return false;
     }
     @Override
     public void reset() {
+        is_new = false;
         Int2D cell = (Int2D)params.get("position");
         AntsForage.toFoodGrid.field[cell.x][cell.y] = 0;
         GUIState_wrapper.getGENERICS().remove(new Pair<>(this.ID, this.getClass_name()));

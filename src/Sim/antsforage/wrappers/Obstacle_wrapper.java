@@ -32,6 +32,7 @@ public class Obstacle_wrapper extends SimObject_wrapper {
     public void map(Object toMap) {}
     @Override
     public void create(JSONObject params){
+        is_new = true;
         if (Obstacle_wrapper.empty_IDs.size() > 0) {
             ID = Obstacle_wrapper.empty_IDs.first();
             Obstacle_wrapper.empty_IDs.remove(ID);
@@ -52,7 +53,7 @@ public class Obstacle_wrapper extends SimObject_wrapper {
 
     }
     @Override
-    public void updateWrapper() {}
+    public boolean updateWrapper() {return false;}
     @Override
     public void reset() {}
     @Override

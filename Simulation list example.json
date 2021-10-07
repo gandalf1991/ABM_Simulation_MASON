@@ -134,6 +134,15 @@
           "is_in_step" : true,
           "params": [
             {
+              "name": "position",
+              "type": "System.Position",
+              "is_in_step" : true,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {}
+            },
+            {
               "name": "reward",
               "type": "System.Single",
               "is_in_step" : true,
@@ -150,15 +159,6 @@
               "editable_in_play": false,
               "editable_in_pause": true,
               "default": false
-            },
-            {
-              "name": "position",
-              "type": "System.Position",
-              "is_in_step" : true,
-              "editable_in_init": false,
-              "editable_in_play": false,
-              "editable_in_pause": true,
-              "default": {}
             }
           ]
         }
@@ -171,8 +171,8 @@
           "params": [
             {
               "name": "position",
-              "type": "System.Cell",
-              "is_in_step" : true,
+              "type": "System.Cells",
+              "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
@@ -187,8 +187,8 @@
           "params": [
             {
               "name": "position",
-              "type": "System.Cell",
-              "is_in_step" : true,
+              "type": "System.Cells",
+              "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
@@ -203,8 +203,8 @@
           "params": [
             {
               "name": "position",
-              "type": "System.Cell",
-              "is_in_step" : true,
+              "type": "System.Cells",
+              "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
@@ -228,8 +228,8 @@
           "params": [
             {
               "name": "position",
-              "type": "System.Cell",
-              "is_in_step" : true,
+              "type": "System.Cells",
+              "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,

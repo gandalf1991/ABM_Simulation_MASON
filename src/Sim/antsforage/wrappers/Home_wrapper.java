@@ -42,6 +42,7 @@ public class Home_wrapper extends SimObject_wrapper {
     }
     @Override
     public void create(JSONObject params) {
+        is_new = true;
         if (Home_wrapper.empty_IDs.size() > 0) {
             ID = Home_wrapper.empty_IDs.first();
             Home_wrapper.empty_IDs.remove(ID);
@@ -62,7 +63,7 @@ public class Home_wrapper extends SimObject_wrapper {
 
     }
     @Override
-    public void updateWrapper() {}
+    public boolean updateWrapper() {return false;}
     @Override
     public void reset() {}
     @Override

@@ -210,18 +210,29 @@ public class AntsForageForUnity extends GUIState_wrapper {
     public boolean updateSimulationWrapper(SimState state) {
 
         long time_before = currentTimeMillis();
+        ArrayList<SimObject_wrapper> toDelete = new ArrayList<>();
+
         // AGENTS
         for (SimObject_wrapper a_w : AGENTS.values()) {
-            a_w.updateWrapper();
+            if (a_w.updateWrapper()) {
+                toDelete.add(a_w);
+            }
         }
         // GENERICS
         for (SimObject_wrapper g_w : GENERICS.values()) {
-            g_w.updateWrapper();
+            if (g_w.updateWrapper()) {
+                toDelete.add(g_w);
+            }
         }
         // OBSTACLES
         for (SimObject_wrapper o_w : OBSTACLES.values()) {
-            o_w.updateWrapper();
+            if (o_w.updateWrapper()) {
+                toDelete.add(o_w);
+            }
         }
+
+        toDelete.forEach(o -> {o.delete();});
+
         long time_after = currentTimeMillis();
         //System.out.println(getClass().getName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + "| " + (time_after-time_before) + " millis.");
         return true;

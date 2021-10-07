@@ -51,6 +51,7 @@ public class Ant_wrapper extends SimObject_wrapper {
     }
     @Override
     public void create(JSONObject params){
+        is_new = true;
         if (Ant_wrapper.empty_IDs.size() > 0) {
             ID = Ant_wrapper.empty_IDs.first();
             Ant_wrapper.empty_IDs.remove(ID);
@@ -83,16 +84,18 @@ public class Ant_wrapper extends SimObject_wrapper {
         ant.hasFoodItem = (boolean)params.get("hasFoodItem");
     }
     @Override
-    public void updateWrapper() {
+    public boolean updateWrapper() {
         params.put("position", ant.last);
         params.put("hasFoodItem", ant.hasFoodItem);
         params.put("reward", ant.reward);
+        return false;
     }
     @Override
     public void reset(){
+        is_new = false;
         Int2D old_pos = new Int2D(AntsForage.HOME_POS.get((ID%AntsForage.HOME_POS.size())).x, AntsForage.HOME_POS.get((ID%AntsForage.HOME_POS.size())).y);
-        float old_reward = ((Number)((JSONObject)((JSONArray)((JSONObject)((JSONArray)GUIState_wrapper.getPrototype().get("agent_prototypes")).get(0)).get("params")).get(0)).get("default")).floatValue();
-        boolean old_hasFoodItem = (boolean)((JSONObject)((JSONArray)((JSONObject)((JSONArray)GUIState_wrapper.getPrototype().get("agent_prototypes")).get(0)).get("params")).get(1)).get("default");
+        float old_reward = ((Number)((JSONObject)((JSONArray)((JSONObject)((JSONArray)GUIState_wrapper.getPrototype().get("agent_prototypes")).get(0)).get("params")).get(1)).get("default")).floatValue();
+        boolean old_hasFoodItem = (boolean)((JSONObject)((JSONArray)((JSONObject)((JSONArray)GUIState_wrapper.getPrototype().get("agent_prototypes")).get(0)).get("params")).get(2)).get("default");
         ant.last = old_pos;
         ant.reward = old_reward;
         ant.hasFoodItem = old_hasFoodItem;

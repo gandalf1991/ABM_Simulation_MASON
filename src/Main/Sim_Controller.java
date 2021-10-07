@@ -8,7 +8,6 @@ import Events.EventArgs.*;
 import Steppables.StepInitiator;
 import Steppables.StepPublisher;
 import Wrappers.GUIState_wrapper;
-import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,7 +34,7 @@ public class Sim_Controller {
 	private static Class<?> clazz;
 
 	// THREADS
-	public static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(5000);
+	public static ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 
 	// GETTERS/SETTERS
 	public static GUIState_wrapper getSimulation() {
@@ -219,6 +218,8 @@ public class Sim_Controller {
 		}
 	}
 	private static boolean resetSimulation(){
+		executor.shutdownNow();
+		if (executor.isShutdown()) executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 		simulation.state.schedule.reset();
 		simulation.resetSimulation();
 		return true;

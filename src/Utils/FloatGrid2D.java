@@ -346,7 +346,7 @@ public class FloatGrid2D extends AbstractGrid2D {
             fieldx = this.field[x];
 
             for(int y = 0; y < height; ++y) {
-                fieldx[y] = Utils.floor(fieldx[y]);
+                fieldx[y] = Utilities.floor(fieldx[y]);
             }
         }
 
@@ -362,7 +362,7 @@ public class FloatGrid2D extends AbstractGrid2D {
             fieldx = this.field[x];
 
             for(int y = 0; y < height; ++y) {
-                fieldx[y] = Utils.ceil(fieldx[y]);
+                fieldx[y] = Utilities.ceil(fieldx[y]);
             }
         }
 
@@ -394,7 +394,7 @@ public class FloatGrid2D extends AbstractGrid2D {
             fieldx = this.field[x];
 
             for(int y = 0; y < height; ++y) {
-                fieldx[y] = Utils.rint(fieldx[y]);
+                fieldx[y] = Utilities.rint(fieldx[y]);
             }
         }
 

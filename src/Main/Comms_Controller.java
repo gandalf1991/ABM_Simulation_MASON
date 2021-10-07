@@ -11,24 +11,18 @@ import Events.Handlers.StateEventHandler;
 import javafx.util.Pair;
 import org.eclipse.paho.client.mqttv3.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import static Utils.Utils.compressMessage;
-import static java.lang.System.currentTimeMillis;
+import static Utils.Utilities.compressMessage;
 
 public class Comms_Controller {
 
@@ -110,6 +104,7 @@ public class Comms_Controller {
 		try {
 			Comm_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Comm_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
+			connOpts.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 			connOpts.setKeepAliveInterval(65535);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
@@ -134,7 +129,7 @@ public class Comms_Controller {
 					// verify sender auth
 					if (isAdmin(sender)){
 						switch (op) {
-							default: onWrongCode(op, sender, json); break;							// ANYONE
+							default: onWrongCode(op, sender, json); break;						// ANYONE
 							case "000" : onCheckStatus(op, sender, json); break;				// ANYONE
 							case "001" : onConnection(op, sender, json); break;					// ANYONE
 							case "002" : onDisconnection(op, sender, json); break;				// USER
@@ -148,7 +143,7 @@ public class Comms_Controller {
 					}
 					else if (isUser(sender)){
 						switch (op) {
-							default: onWrongCode(op, sender, json); break;							// ANYONE
+							default: onWrongCode(op, sender, json); break;						// ANYONE
 							case "001" : onConnection(op, sender, json); break;					// ANYONE
 							case "000" : onCheckStatus(op, sender, json); break;				// ANYONE
 							case "002" : onDisconnection(op, sender, json); break;				// USER
@@ -188,6 +183,7 @@ public class Comms_Controller {
 		try {
 			Sim_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Sim_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
+			connOpts.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 			connOpts.setKeepAliveInterval(65535);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
@@ -422,8 +418,7 @@ public class Comms_Controller {
 			e.printStackTrace();
 		}
 	}
-	public static void publishStep(long step_id, byte[] step) {
-
+	public static int publishStep(long step_id, byte[] step) {
 		try {
 			MqttMessage message = new MqttMessage(compressMessage(step));
 			//System.out.println("\nStep send: "+ step_id + " on topic " + (step_id-1)%Sim_Controller.simTopics);
@@ -433,6 +428,7 @@ public class Comms_Controller {
 			} catch (MqttException e) {
 				e.printStackTrace();
 			}
+			return message.getPayload().length;
 		} catch(Exception e) {
 			System.out.println("msg "+e.getMessage());
 			System.out.println("loc "+e.getLocalizedMessage());
@@ -440,6 +436,7 @@ public class Comms_Controller {
 			System.out.println("excep "+e);
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	public static void publishPrivateResponse(String sender, String op, boolean result, String error, JSONObject payload_data){

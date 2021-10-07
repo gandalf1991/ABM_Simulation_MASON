@@ -4,7 +4,6 @@
 
 package Events;
 
-import org.json.simple.JSONObject;
 
 @FunctionalInterface
 public interface IEvent<TEventArgs extends Object> {

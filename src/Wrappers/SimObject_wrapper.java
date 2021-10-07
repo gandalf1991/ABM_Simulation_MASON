@@ -13,6 +13,7 @@ public abstract class SimObject_wrapper {
     protected String class_name;
     protected int ID;
     protected HashMap<String, Object> params = new HashMap<>();
+    protected boolean is_new = false;
 
     public GUIState_wrapper.SimObjectType getType() {
         return type;
@@ -32,13 +33,19 @@ public abstract class SimObject_wrapper {
     public void setParams(HashMap<String, Object> params) {
         this.params = params;
     }
+    public boolean Is_new() {
+        return is_new;
+    }
+    public void setIs_new(boolean is_new) {
+        this.is_new = is_new;
+    }
 
     public SimObject_wrapper(){}
 
     public abstract void map(Object toMap);
     public abstract void create(JSONObject params);
     public abstract void update(JSONObject params);
-    public abstract void updateWrapper();
+    public abstract boolean updateWrapper();
     public abstract void reset();
     public abstract void delete();
 }

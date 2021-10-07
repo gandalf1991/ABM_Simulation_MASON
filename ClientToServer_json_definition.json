@@ -121,7 +121,7 @@ OP 999 CLIENT_ERROR
         },
         {
           "name" : "position",
-          "type": "System.Cell",
+          "type": "System.Cells",
           "editable_in_play": true,
           "editable_in_pause": true,
           "default" : [
