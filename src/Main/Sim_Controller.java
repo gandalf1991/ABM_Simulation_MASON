@@ -19,6 +19,7 @@ import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Stack;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -27,7 +28,7 @@ public class Sim_Controller {
 	// SIMULATION
 	private static JSONObject sim_list = new JSONObject();
 	private JSONObject current_sim = new JSONObject();
-	private static Update update = new Update(false, new JSONObject());
+	private static Stack<Update> updates = new Stack<Update>(){};
 	private static GUIState_wrapper simulation;
 	private static SimState simstate;
 	private static byte[] step;
@@ -43,11 +44,11 @@ public class Sim_Controller {
 	public static void setSimulation(GUIState_wrapper simulation) {
 		Sim_Controller.simulation = simulation;
 	}
-	public static Update getUpdate() {
-		return update;
+	public static Stack<Update> getUpdates() {
+		return updates;
 	}
-	public static void setUpdate(Update update) {
-		Sim_Controller.update = update;
+	public static void setUpdates(Stack<Update> updates) {
+		Sim_Controller.updates = updates;
 	}
 	public static double getClientStepRate() {
 		return clientStepRate;
@@ -73,9 +74,11 @@ public class Sim_Controller {
 	public enum SimStateEnum {
 
 		NOT_READY(-1),						// sim not init
-		READY(0),							// sim init
+		READY(0),								// sim init
 		PLAY(1),
-		PAUSE(2);
+		PAUSE(2),
+		BUSY(3),
+		ERROR(999);
 
 		private final int code;
 		private SimStateEnum(int code){
@@ -88,11 +91,14 @@ public class Sim_Controller {
 
 	// VARIABLES
 	public static int simTopics = 60;
-	private static double simStepRate;
-	private static double clientStepRate = 60;
-	private static int currentSteps;
+	public static double simStepRate = 0;
+	public static double clientStepRate = 60;
+	private static int currentSteps = 0;
 	private static long lastRateTime;
-	private static long RATE_UPDATE_INTERVAL = 5000L;
+	private static long lastPrintTime;
+	private static long RATE_UPDATE_INTERVAL = 1000L;
+	private static long PRINT_INTERVAL = 5000L;
+	public static boolean completeStep = false;
 
 	// CONTROLLERS
 	private static final Comms_Controller comms_controller = new Comms_Controller();
@@ -101,13 +107,29 @@ public class Sim_Controller {
 	private static SimStateEnum onCheckStatusRequestEventHandle(Object source, CheckStatusEventArgs e){
 		return CheckStatus();
 	}
+	private static boolean onDisconnectEventHandle(Object source, DisconnectEventArgs e){
+		switch ((Comms_Controller.DisconnectAction) e.getPayload().get("action")){
+			case PAUSE:
+				if(!state.equals(SimStateEnum.PAUSE)){
+					GUIState_wrapper.c.pressPause();
+					state = SimStateEnum.PAUSE;
+				}
+				return true;
+			case STOP:
+				GUIState_wrapper.c.pressStop();
+				resetSimulation();
+				state = SimStateEnum.NOT_READY;
+				return true;
+		}
+		return false;
+	}
 	private static JSONObject onSimListRequestEventHandle(Object source, SimListRequestEventArgs e) throws IOException, ParseException {
 		JSONParser parser = new JSONParser();
 		sim_list = (JSONObject) parser.parse(new FileReader("Simulation list example.json"));
 		return sim_list;
 	}
 	private static boolean onSimInitializeEventHandle(Object source, SimInitializeEventArgs e) throws InstantiationException, IllegalAccessException {
-		return SimIntialize(e.getPayload());
+		return SimInitialize(e.getPayload());
 	}
 	private static boolean onSimUpdateEventHandle(Object source, SimUpdateEventArgs e){
 		return SimUpdate(e.getPayload());
@@ -131,8 +153,8 @@ public class Sim_Controller {
 	private static SimStateEnum CheckStatus() {
 		return state;
 	}
-	private static boolean SimIntialize(@NotNull JSONObject payload) throws InstantiationException, IllegalAccessException {
-
+	private static boolean SimInitialize(@NotNull JSONObject payload) throws InstantiationException, IllegalAccessException {
+		state = SimStateEnum.BUSY;
 		String class_name = (String)payload.get("name");
 		try {
 			clazz = Class.forName("Sim." + class_name.toLowerCase() + "." + class_name + "ForUnity");
@@ -142,7 +164,13 @@ public class Sim_Controller {
 
 		// INIT PROTO & SIM
 		simulation.initPrototype(payload);
-		simulation.initSimulationState();
+		if(simulation.initSimulationState()) {
+			state = SimStateEnum.READY;
+		}
+		else {
+			state = SimStateEnum.ERROR;
+			// SEND SERVER ERROR
+		}
 
 		// schedule steppables
 		stepInitiator_stoppable = simulation.scheduleRepeatingImmediatelyBefore(stepInitiator);
@@ -153,7 +181,10 @@ public class Sim_Controller {
 		return true;
 	}
 	private static boolean SimUpdate(@NotNull JSONObject payload) {
-		update = new Update(true, payload);
+		SimStateEnum old_state = state;
+		state = SimStateEnum.BUSY;
+		updates.push(new Update(true, payload));
+		state = old_state;
 		return true;
 	}
 	private static boolean SimCommand(@NotNull JSONObject payload) {
@@ -165,40 +196,51 @@ public class Sim_Controller {
 				return simulation.step();
 			case 1:
 				GUIState_wrapper.c.pressPlay();
+				state = SimStateEnum.PLAY;
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PLAYING;
 			case 2:
 				GUIState_wrapper.c.pressPause();
+				state = SimStateEnum.PAUSE;
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED;
 			case 3:
 				GUIState_wrapper.c.pressStop();
 				resetSimulation();
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED;
 			case 4:
-				int speed = (int)payload.get("value");
+				int speed = ((Long)payload.get("value")).intValue();
+				int prev_state = GUIState_wrapper.c.getPlayState();
 				switch (speed) {
 					case 4:		// MAX SPEED
 						rateAdjuster_stoppable.stop();
-						return rateAdjuster==null;
+						return true;
 					case 3:		// 2X SPEED
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPause();
 						rateAdjuster_stoppable.stop();
 						rateAdjuster = new RateAdjuster(2 * clientStepRate);
 						rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
-						return rateAdjuster!=null;
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPlay();
+						return true;
 					case 2:		// 1X SPEED
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPause();
 						rateAdjuster_stoppable.stop();
 						rateAdjuster = new RateAdjuster(clientStepRate);
 						rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
-						return rateAdjuster!=null;
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPlay();
+						return true;
 					case 1:		// 0.5X SPEED
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPause();
 						rateAdjuster_stoppable.stop();
 						rateAdjuster = new RateAdjuster(0.5f * clientStepRate);
 						rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
-						return rateAdjuster!=null;
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPlay();
+						return true;
 					case 0:		// 0.25X SPEED
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPause();
 						rateAdjuster_stoppable.stop();
 						rateAdjuster = new RateAdjuster(0.25f * clientStepRate);
 						rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
-						return rateAdjuster!=null;
+						if(prev_state == SimpleController.PS_PLAYING) GUIState_wrapper.c.pressPlay();
+						return true;
 				}
 				break;
 			// case 5:
@@ -211,17 +253,22 @@ public class Sim_Controller {
 		++currentSteps;
 		long l = System.currentTimeMillis();
 		if (l - lastRateTime >= RATE_UPDATE_INTERVAL) {
-			simStepRate = (double)currentSteps / ((double)(l - lastRateTime) / 1000.0D);
+			simStepRate = currentSteps;//*(1000/(Double.max(l - lastRateTime, Integer.MIN_VALUE)));		// estimate currentSteps/s as steps produced in x millis * 1 sec/x millis
 			currentSteps = 0;
 			lastRateTime = l;
-			System.out.println("Step: " + simstate.schedule.getSteps() + " - " + simStepRate + " steps/s.");
+			if(l - lastPrintTime >= PRINT_INTERVAL){
+				lastPrintTime = l;
+				System.out.println("Step: " + simstate.schedule.getSteps() + " - " + simStepRate + " steps/s.");
+				System.out.println("| AGENTS: " + GUIState_wrapper.getAGENTS().size() + "| GENERICS: " + GUIState_wrapper.getGENERICS().size());
+			}
 		}
 	}
-	private static boolean resetSimulation(){
+	public static boolean resetSimulation(){
 		executor.shutdownNow();
 		if (executor.isShutdown()) executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 		simulation.state.schedule.reset();
 		simulation.resetSimulation();
+		state = SimStateEnum.READY;
 		return true;
 	}
 
@@ -229,6 +276,7 @@ public class Sim_Controller {
 
 		// register to events
 		comms_controller.checkStatusEventArgsEventHandler.subscribe(Sim_Controller::onCheckStatusRequestEventHandle);
+		comms_controller.disconnectEventArgsEventHandler.subscribe(Sim_Controller::onDisconnectEventHandle);
 		comms_controller.simListRequestEventArgsEventHandler.subscribe(Sim_Controller::onSimListRequestEventHandle);
 		comms_controller.simInitializeEventHandler.subscribe(Sim_Controller::onSimInitializeEventHandle);
 		comms_controller.simUpdateEventHandler.subscribe(Sim_Controller::onSimUpdateEventHandle);

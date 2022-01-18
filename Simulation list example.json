@@ -9,17 +9,17 @@
         {
           "name": "x",
           "type": "System.Int32",
-          "default": 500
+          "default": 250
         },
         {
           "name": "y",
           "type": "System.Int32",
-          "default": 500
+          "default": 250
         },
         {
           "name": "z",
           "type": "System.Int32",
-          "default": 500
+          "default": 250
         }
       ],
       "sim_params": [
@@ -31,22 +31,27 @@
         {
           "name": "avoidance",
           "type": "System.Single",
-          "default": "0.5"
+          "default": 0.5
         },
         {
           "name": "randomness",
           "type": "System.Single",
-          "default": 1
+          "default": 1.0
         },
         {
           "name": "consistency",
           "type": "System.Single",
-          "default": 1
+          "default": 1.0
         },
         {
           "name": "momentum",
           "type": "System.Single",
-          "default": 1
+          "default": 1.0
+        },
+        {
+          "name": "deadFlockerProbability",
+          "type": "System.Single",
+          "default": 0.2
         },
         {
           "name": "neighborhood",
@@ -57,13 +62,22 @@
           "name": "jump",
           "type": "System.Single",
           "default": 0.7
+        },
+        {
+          "name": "AVOID_DISTANCE",
+          "type": "System.Single",
+          "default": 10.0
         }
       ],
       "agent_prototypes": [
         {
           "class": "Flocker",
-          "default": 10,
+          "default": 500,
+          "layer" : "flockers",
+          "shares_position" : true,
           "is_in_step" : true,
+          "static_on_death" : true,
+          "to_keep_if_not_in_step" : true,
           "params": [
             {
               "name": "position",
@@ -72,16 +86,22 @@
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
-              "default": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+              "default": {}
+            },
+            {
+              "name": "dead",
+              "type": "System.Boolean",
+              "is_in_step" : true,
+              "editable_in_init": false,
+              "editable_in_play": true,
+              "editable_in_pause": true,
+              "default": false
             }
           ]
         }
       ],
-      "generic_prototypes": []
+      "generic_prototypes": [],
+      "obstacle_prototypes": []
     },
     {
       "id": 1,
@@ -92,12 +112,12 @@
         {
           "name": "x",
           "type": "System.Int32",
-          "default": 100
+          "default": 50
         },
         {
           "name": "y",
           "type": "System.Int32",
-          "default": 100
+          "default": 50
         }
       ],
       "sim_params": [
@@ -131,23 +151,33 @@
         {
           "class": "Ant",
           "default": 100,
+          "layer" : "buggrid",
+          "shares_position" : true,
           "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
           "params": [
             {
               "name": "position",
-              "type": "System.Position",
+              "type": "System.Cells",
+              "cells_number" : 1,
               "is_in_step" : true,
               "editable_in_init": false,
-              "editable_in_play": false,
+              "editable_in_play": true,
               "editable_in_pause": true,
-              "default": {}
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
             },
             {
               "name": "reward",
               "type": "System.Single",
               "is_in_step" : true,
-              "editable_in_init": false,
-              "editable_in_play": false,
+              "editable_in_init": true,
+              "editable_in_play": true,
               "editable_in_pause": true,
               "default": 0.9
             },
@@ -155,8 +185,8 @@
               "name": "hasFoodItem",
               "type": "System.Boolean",
               "is_in_step" : true,
-              "editable_in_init": false,
-              "editable_in_play": false,
+              "editable_in_init": true,
+              "editable_in_play": true,
               "editable_in_pause": true,
               "default": false
             }
@@ -167,48 +197,90 @@
         {
           "class": "Home",
           "default": 1,
-          "is_in_step" : false,
+          "layer" : "sites",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
           "params": [
             {
               "name": "position",
               "type": "System.Cells",
+              "cells_number" : 4,
               "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
-              "default": []
+              "default": [
+                {
+                  "x" : 20,
+                  "y" : 20
+                },
+                {
+                  "x" : 20,
+                  "y" : 21
+                },
+                {
+                  "x" : 21,
+                  "y" : 20
+                },
+                {
+                  "x" : 21,
+                  "y" : 21
+                }
+              ]
             }
           ]
         },
         {
           "class": "Food",
           "default": 1,
-          "is_in_step" : false,
+          "layer" : "sites",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
           "params": [
             {
               "name": "position",
               "type": "System.Cells",
+              "cells_number" : 1,
               "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
-              "default": []
+              "default": [
+                {
+                  "x" : 45,
+                  "y" : 45
+                }
+              ]
             }
           ]
         },
         {
           "class": "PheromoneToHome",
           "default": 0,
+          "layer" : "to_home",
+          "shares_position" : false,
           "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
           "params": [
             {
               "name": "position",
               "type": "System.Cells",
-              "is_in_step" : false,
+              "cells_number" : 1,
+              "is_in_step" : true,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
-              "default": []
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
             },
             {
               "name": "intensity",
@@ -224,16 +296,26 @@
         {
           "class": "PheromoneToFood",
           "default": 0,
+          "layer" : "to_food",
+          "shares_position" : false,
           "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
           "params": [
             {
               "name": "position",
               "type": "System.Cells",
-              "is_in_step" : false,
+              "cells_number" : 1,
+              "is_in_step" : true,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
-              "default": []
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
             },
             {
               "name": "intensity",
@@ -243,6 +325,216 @@
               "editable_in_play": true,
               "editable_in_pause": true,
               "default": 0
+            }
+          ]
+        }
+      ],
+      "obstacle_prototypes": [
+        {
+          "class": "Barrel",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 1,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Boat",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 8,
+              "is_in_step" : true,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Church",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 170,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Fence",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 3,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "House",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 25,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Pond",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 100,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Rock",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 4,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "class": "Wood",
+          "default": 1,
+          "layer" : "obstacles",
+          "shares_position" : false,
+          "is_in_step" : true,
+          "static_on_death" : false,
+          "to_keep_if_not_in_step" : false,
+          "params": [
+            {
+              "name": "position",
+              "type": "System.Cells",
+              "cells_number" : 2,
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": [
+                {
+                  "x" : 0,
+                  "y" : 0
+                }
+              ]
             }
           ]
         }

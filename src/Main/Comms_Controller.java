@@ -8,6 +8,8 @@ import Events.EventArgs.*;
 import Events.Handlers.EventHandler;
 import Events.Handlers.JSONEventHandler;
 import Events.Handlers.StateEventHandler;
+import Main.Sim_Controller.SimStateEnum;
+import Wrappers.GUIState_wrapper;
 import javafx.util.Pair;
 import org.eclipse.paho.client.mqttv3.*;
 
@@ -17,6 +19,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
@@ -31,7 +34,7 @@ public class Comms_Controller {
 	public enum CommsStateEnum {
 
 		NOT_READY(-1),						// sim not init
-		READY(0);							// sim init
+		READY(0);								// sim init
 
 		private final int code;
 		private CommsStateEnum(int code){
@@ -78,10 +81,27 @@ public class Comms_Controller {
 		put("998", "SERVER_ERROR");
 	}};
 
+	// DISCONNECT ACTION ENUM
+	public enum DisconnectAction{
+
+		NONE(-1),								// Do nothing
+		PAUSE(0),								// PAUSE when someone disconnects
+		STOP(1);								// STOP when someone disconnects
+
+		private final int code;
+		private DisconnectAction(int code){
+			this.code = code;
+		}
+		public int getCode(){
+			return code;
+		}
+	}
+
 	// CONSTRUCTOR
 	public Comms_Controller() {
 		initializeSimClient();
 		initializeCommClient();
+		state = CommsStateEnum.READY;
 	}
 
 	// RESPONSE VARIABLES
@@ -94,6 +114,7 @@ public class Comms_Controller {
 
 	// EVENTS
 	public StateEventHandler<CheckStatusEventArgs> checkStatusEventArgsEventHandler = new StateEventHandler<>();
+	public EventHandler<DisconnectEventArgs> disconnectEventArgsEventHandler = new EventHandler<>();
 	public JSONEventHandler<SimListRequestEventArgs> simListRequestEventArgsEventHandler = new JSONEventHandler<>();
 	public EventHandler<SimInitializeEventArgs> simInitializeEventHandler = new EventHandler<>();
 	public EventHandler<SimUpdateEventArgs> simUpdateEventHandler = new EventHandler<>();
@@ -102,10 +123,10 @@ public class Comms_Controller {
 	// METHODS
 	public void initializeCommClient() {
 		try {
-			Comm_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Comm_client");
+			Comm_client = new MqttAsyncClient("tcp://localhost:1883", "Comm_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
-			connOpts.setKeepAliveInterval(65535);
+			connOpts.setKeepAliveInterval(300);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
 			connOpts.setMaxInflight(100);
@@ -181,10 +202,10 @@ public class Comms_Controller {
 	}
 	public void initializeSimClient() {
 		try {
-			Sim_client = new MqttAsyncClient("tcp://193.205.161.52:1883", "Sim_client");
+			Sim_client = new MqttAsyncClient("tcp://localhost:1883", "Sim_client");
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
-			connOpts.setKeepAliveInterval(65535);
+			connOpts.setKeepAliveInterval(300);
 			connOpts.setAutomaticReconnect(true);
 			connOpts.setCleanSession(true);
 			connOpts.setMaxInflight(10000);
@@ -217,6 +238,12 @@ public class Comms_Controller {
 		state = checkStatusEventArgsEventHandler.invoke(this, e);
 
 		response.put("state", state.getCode());
+		if(!state.equals(SimStateEnum.NOT_READY) && !state.equals(SimStateEnum.BUSY)){
+			response.put("adminName", USERS.entrySet().stream().filter((stringUserEntry -> stringUserEntry.getValue().isAdmin())).collect(Collectors.toList()).get(0).getKey());
+			response.put("simId", GUIState_wrapper.getPrototype().get("id"));
+			response.put("simStepRate", Sim_Controller.simStepRate);
+			response.put("sim_params", GUIState_wrapper.getSIM_PARAMS());
+		}
 
 		// response
 		publishPrivateResponse(sender, op, true, "", response);
@@ -224,13 +251,19 @@ public class Comms_Controller {
 	public void onConnection(String op, String sender, JSONObject request){
 		boolean result;
 		String error;
+		JSONObject response = new JSONObject();
 
 		// connect client
 		result = connectClient(sender);
+		response.put("result", result);
+		response.put("sender", sender);
+		response.put("isAdmin", USERS.get(sender).isAdmin());
+
+		if(result) Sim_Controller.completeStep = true;
 
 		//response
-		publishPrivateResponse(sender, op, result, result? null : "ALREADY_CONNECTED", request);
-		publishPublicResponse(sender, op, result, result? null : "ALREADY_CONNECTED", request);
+		publishPrivateResponse(sender, op, result, result? null : "ALREADY_CONNECTED", response);
+		publishPublicResponse(sender, op, result, result? null : "ALREADY_CONNECTED", response);
 	}
 	public void onDisconnection(String op, String sender, JSONObject request){
 		Pair<Boolean, String> res;
@@ -249,7 +282,6 @@ public class Comms_Controller {
 		if(!new_admin.equals("")) {
 			SendNewAdmin(new_admin);
 		}
-
 	}
 	public void onSimListRequest(String op, String sender, JSONObject request) throws IOException, ParseException {
 		boolean result;
@@ -275,7 +307,7 @@ public class Comms_Controller {
 		result = simInitializeEventHandler.invoke(this, e);
 
 		// response
-		publishPrivateResponse(sender, op, result, result? null : "INIT_FAILED");
+		publishPrivateResponse(sender, op, result, result? null : "INIT_FAILED", request);
 		publishPublicResponse(sender, op, result, result? null : "INIT_FAILED", request);
 	}
 	public void onSimUpdate(String op, String sender, JSONObject request){
@@ -289,7 +321,7 @@ public class Comms_Controller {
 
 		// response
 		publishPrivateResponse(sender, op, result, result? null : "UPDATE_FAILED");
-		publishPublicResponse(sender, op, result, result? null : "UPDATE_FAILED", request);
+		publishPublicResponse(sender, op, result, result? null : "UPDATE_FAILED", new JSONObject());
 	}
 	public void onSimCommand(String op, String sender, JSONObject request){
 		boolean result;
@@ -375,6 +407,8 @@ public class Comms_Controller {
 		if (USERS.containsKey(username)) {
 			User old_user = USERS.remove(username);
 			CLIENTS_TOPICS.remove(username);
+			JSONObject payload = new JSONObject();
+			DisconnectEventArgs e = new DisconnectEventArgs(payload);
 			System.out.println(getClass().getSimpleName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | " + (old_user.isAdmin() ? "ADMIN" : "USER") + " " + username + " disconnected successfully.");
 			if(old_user.isAdmin()) {
 				if(!USERS.isEmpty()) {
@@ -382,7 +416,17 @@ public class Comms_Controller {
 					User new_admin = USERS.entrySet().toArray(a)[0].getValue();
 					new_admin.setRole(User.Role.ADMIN);
 					System.out.println(getClass().getSimpleName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | " + new_admin.getNickname() + " became ADMIN.");
+					if(!Sim_Controller.state.equals(SimStateEnum.NOT_READY)){
+						e.getPayload().put("action", DisconnectAction.PAUSE);
+						disconnectEventArgsEventHandler.invoke(this, e);
+					}
 					return new Pair<Boolean, String>(true, new_admin.getNickname());
+				}
+				else {
+					if(!Sim_Controller.state.equals(SimStateEnum.NOT_READY)){
+						e.getPayload().put("action", DisconnectAction.STOP);
+						disconnectEventArgsEventHandler.invoke(this, e);
+					}
 				}
 			}
 			return new Pair<Boolean, String>(true, "");
@@ -424,7 +468,27 @@ public class Comms_Controller {
 			//System.out.println("\nStep send: "+ step_id + " on topic " + (step_id-1)%Sim_Controller.simTopics);
 			message.setQos(0);
 			try {
-				Sim_client.publish("Topic" + (step_id-1)%Sim_Controller.simTopics, message);
+				Sim_client.publish("Topic" + (step_id-1)%Math.min((int)Math.floor(Sim_Controller.simStepRate) > 0 ? (int)Math.floor(Sim_Controller.simStepRate) : 60, 60), message);
+			} catch (MqttException e) {
+				e.printStackTrace();
+			}
+			return message.getPayload().length;
+		} catch(Exception e) {
+			System.out.println("msg "+e.getMessage());
+			System.out.println("loc "+e.getLocalizedMessage());
+			System.out.println("cause "+e.getCause());
+			System.out.println("excep "+e);
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	public static int publishStepOnTopic(long step_id, byte[] step, int topic) {
+		try {
+			MqttMessage message = new MqttMessage(compressMessage(step));
+			//System.out.println("\nStep send: "+ step_id + " on topic " + (step_id-1)%Sim_Controller.simTopics);
+			message.setQos(0);
+			try {
+				Sim_client.publish("Topic" + topic, message);
 			} catch (MqttException e) {
 				e.printStackTrace();
 			}
@@ -454,7 +518,7 @@ public class Comms_Controller {
 		publishMessage(responseJson, response_topics);
 		responseJson.clear();
 		responsePayload.clear();
-		System.out.println(Comms_Controller.class + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PRIVATE RESPONSE to " + sender + " for " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
+		//System.out.println(Comms_Controller.class + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + " | PUBLISHED PRIVATE RESPONSE to " + sender + " for " + IN_OPS.get(op) + " operation ended " + (result? "successfully" : "unsuccessfully") + ".");
 	}
 	public static void publishPrivateResponse(String sender, String op, boolean result, String error){
 		publishPrivateResponse(sender, op, result, error, new JSONObject());

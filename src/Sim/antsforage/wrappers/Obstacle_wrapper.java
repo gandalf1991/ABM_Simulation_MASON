@@ -44,7 +44,10 @@ public class Obstacle_wrapper extends SimObject_wrapper {
         ArrayList<Int2D> cells = new ArrayList<>();
         for (Object c : (JSONArray)params.get("position")) {
             AntsForage.obstacles.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = 1;
+            AntsForage.toHomeGrid.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = 0f;
+            AntsForage.toFoodGrid.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = 0f;
             cells.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
+            AntsForage.OBST_POS.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
         }
         this.params.put("position", cells);
     }
@@ -60,8 +63,9 @@ public class Obstacle_wrapper extends SimObject_wrapper {
     public void delete() {
         for (Int2D c: (ArrayList<Int2D>)params.get("position")) {
             AntsForage.obstacles.field[c.x][c.y] = 0;
+            AntsForage.OBST_POS.remove(c);
         }
-        GUIState_wrapper.getOBSTACLES().remove(new Pair<>(this.ID, GUIState_wrapper.genericClasses.get(3)));
+        GUIState_wrapper.getOBSTACLES().remove(new Pair<>(this.ID, class_name));
         empty_IDs.add(ID);
         --quantity;
     }

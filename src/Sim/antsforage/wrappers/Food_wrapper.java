@@ -30,7 +30,8 @@ public class Food_wrapper extends SimObject_wrapper {
 
     @Override
     public void map(Object toMap) {
-        Int2D mapping = (Int2D)toMap;
+        is_new = true;
+        ArrayList<Int2D> mapping = (ArrayList<Int2D>)toMap;
         if (Food_wrapper.empty_IDs.size() > 0) {
             ID = Food_wrapper.empty_IDs.first();
             Food_wrapper.empty_IDs.remove(ID);
@@ -38,7 +39,8 @@ public class Food_wrapper extends SimObject_wrapper {
         else {
             ID = quantity;
         }
-        this.params.put("position", new Int2D(mapping.x, mapping.y));
+        ++quantity;
+        this.params.put("position", mapping);
     }
     @Override
     public void create(JSONObject params) {
@@ -55,6 +57,7 @@ public class Food_wrapper extends SimObject_wrapper {
         for (Object c : (JSONArray)params.get("position")) {
             AntsForage.sites.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = AntsForage.FOOD;
             cells.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
+            AntsForage.FOOD_POS.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
         }
         this.params.put("position", cells);
     }
@@ -70,6 +73,7 @@ public class Food_wrapper extends SimObject_wrapper {
     public void delete() {
         for (Int2D c: (ArrayList<Int2D>)params.get("position")) {
             AntsForage.sites.field[c.x][c.y] = 0;
+            AntsForage.FOOD_POS.remove(c);
         }
         GUIState_wrapper.getGENERICS().remove(new Pair<>(this.ID, this.getClass_name()));
         empty_IDs.add(ID);

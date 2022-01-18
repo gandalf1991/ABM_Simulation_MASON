@@ -1,110 +1,121 @@
 /*
-  Copyright 2006 by Sean Luke and George Mason University
-  Licensed under the Academic Free License version 3.0
-  See the file "LICENSE" for more information
+ 	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package sim.app.flockers;
+package Sim.flockers;
+
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
+import java.util.HashMap;
 
-public class Flockers extends SimState
-    {
+public class Flockers extends SimState {
     private static final long serialVersionUID = 1;
 
-    public Continuous2D flockers;
-    public double width = 150;
-    public double height = 150;
-    public int numFlockers = 200;
-    public double cohesion = 1.0;
-    public double avoidance = 1.0;
-    public double randomness = 1.0;
-    public double consistency = 1.0;
-    public double momentum = 1.0;
-    public double deadFlockerProbability = 0.1;
-    public double neighborhood = 10;
-    public double jump = 0.7;  // how far do we move in a timestep?
-    
-    public double getCohesion() { return cohesion; }
-    public void setCohesion(double val) { if (val >= 0.0) cohesion = val; }
-    public double getAvoidance() { return avoidance; }
-    public void setAvoidance(double val) { if (val >= 0.0) avoidance = val; }
-    public double getRandomness() { return randomness; }
-    public void setRandomness(double val) { if (val >= 0.0) randomness = val; }
-    public double getConsistency() { return consistency; }
-    public void setConsistency(double val) { if (val >= 0.0) consistency = val; }
-    public double getMomentum() { return momentum; }
-    public void setMomentum(double val) { if (val >= 0.0) momentum = val; }
-    public int getNumFlockers() { return numFlockers; }
-    public void setNumFlockers(int val) { if (val >= 1) numFlockers = val; }
-    public double getWidth() { return width; }
-    public void setWidth(double val) { if (val > 0) width = val; }
-    public double getHeight() { return height; }
-    public void setHeight(double val) { if (val > 0) height = val; }
-    public double getNeighborhood() { return neighborhood; }
-    public void setNeighborhood(double val) { if (val > 0) neighborhood = val; }
-    public double getDeadFlockerProbability() { return deadFlockerProbability; }
-    public void setDeadFlockerProbability(double val) { if (val >= 0.0 && val <= 1.0) deadFlockerProbability = val; }
-        
-    public Double2D[] getLocations()
-        {
-        if (flockers == null) return new Double2D[0];
+    public static double width = 400;
+    public static double height = 400;
+    public static double lenght = 400;
+    public static int numFlockers = 1000;
+    public static int deadFlockers = 0;
+    public static double cohesion = 1.0;
+    public static double avoidance = 1.0;
+    public static double randomness = 1.0;
+    public static double consistency = 1.0;
+    public static double momentum = 1.0;
+    public static double deadFlockerProbability = 0.2;
+    public static double neighborhood = 10;
+    public static double jump = 0.7;  // how far do we move in a timestep?
+    public static double AVOID_DISTANCE = 10.0;
+    public static Continuous3D flockers;                                                                                                    // REMOVED '= new Continuous3D(neighborhood/1.5d,width,height,lenght);'
+
+    public static HashMap<Integer, Stoppable> agents_stoppables = new HashMap<>();                                                          // ADDED Stoppable to kill Flockers
+
+    public static double getCohesion() { return cohesion; }
+    public static void setCohesion(double val) { if (val >= 0.0) cohesion = val; }
+    public static double getAvoidance() { return avoidance; }
+    public static void setAvoidance(double val) { if (val >= 0.0) avoidance = val; }
+    public static double getRandomness() { return randomness; }
+    public static void setRandomness(double val) { if (val >= 0.0) randomness = val; }
+    public static double getConsistency() { return consistency; }
+    public static void setConsistency(double val) { if (val >= 0.0) consistency = val; }
+    public static double getMomentum() { return momentum; }
+    public static void setMomentum(double val) { if (val >= 0.0) momentum = val; }
+    public static int getNumFlockers() { return numFlockers; }
+    public static void setNumFlockers(int val) { if (val >= 1) numFlockers = val; }
+    public static double getWidth() { return width; }
+    public static void setWidth(double val) { if (val > 0) width = val; }
+    public static double getHeight() { return height; }
+    public static void setHeight(double val) { if (val > 0) height = val; }
+    public static double getNeighborhood() { return neighborhood; }
+    public static void setNeighborhood(int val) { if (val > 0) neighborhood = val; }
+    public static double getDeadFlockerProbability() { return deadFlockerProbability; }
+    public static void setDeadFlockerProbability(double val) { if (val >= 0.0 && val <= 1.0) deadFlockerProbability = val; }
+
+   
+    public static Double3D[] getLocations() {
+        if (flockers == null) return new Double3D[0];
         Bag b = flockers.getAllObjects();
-        if (b==null) return new Double2D[0];
-        Double2D[] locs = new Double2D[b.numObjs];
+        if (b==null) return new Double3D[0];
+        Double3D[] locs = new Double3D[b.numObjs];
         for(int i =0; i < b.numObjs; i++)
             locs[i] = flockers.getObjectLocation(b.objs[i]);
         return locs;
         }
-    
-    public Double2D[] getInvertedLocations()
-        {
-        if (flockers == null) return new Double2D[0];
+    public static Double3D[] getInvertedLocations() {
+        if (flockers == null) return new Double3D[0];
         Bag b = flockers.getAllObjects();
-        if (b==null) return new Double2D[0];
-        Double2D[] locs = new Double2D[b.numObjs];
+        if (b==null) return new Double3D[0];
+        Double3D[] locs = new Double3D[b.numObjs];
         for(int i =0; i < b.numObjs; i++)
             {
             locs[i] = flockers.getObjectLocation(b.objs[i]);
-            locs[i] = new Double2D(locs[i].y, locs[i].x);
+            locs[i] = new Double3D(locs[i].y, locs[i].x, locs[i].z);
             }
         return locs;
-        }
+    }
+
 
     /** Creates a Flockers simulation with the given random number seed. */
-    public Flockers(long seed)
-        {
-        super(seed);
-        }
+    public Flockers(long seed) {
+    	super(seed);
+    }
     
-    public void start()
-        {
+    public void start() {
         super.start();
-        
+
         // set up the flockers field.  It looks like a discretization
         // of about neighborhood / 1.5 is close to optimal for us.  Hmph,
-        // that's 16 hash lookups! I would have guessed that 
+        // that's 16 hash lookups! I would have guessed that
         // neighborhood * 2 (which is about 4 lookups on average)
         // would be optimal.  Go figure.
-        flockers = new Continuous2D(neighborhood/1.5,width,height);
-        
+
         // make a bunch of flockers and schedule 'em.  A few will be dead
-        for(int x=0;x<numFlockers;x++)
-            {
-            Double2D location = new Double2D(random.nextDouble()*width, random.nextDouble() * height);
-            Flocker flocker = new Flocker(location);
-            if (random.nextBoolean(deadFlockerProbability)) flocker.dead = true;
+        for(int x=0; x<numFlockers; x++) {
+            Double3D location = new Double3D(random.nextDouble() * width, random.nextDouble() * height, random.nextDouble() * lenght);
+            Flocker flocker = new Flocker(x, location);
+            if (random.nextBoolean(deadFlockerProbability)) {flocker.dead = true; deadFlockers++;}
             flockers.setObjectLocation(flocker, location);
             flocker.flockers = flockers;
             flocker.theFlock = this;
-            schedule.scheduleRepeating(flocker);
-            }
+            agents_stoppables.put(x, schedule.scheduleRepeating(flocker));                                 // ADDED insertion in Stoppable collection
         }
+    }
 
-    public static void main(String[] args)
-        {
+
+    public void scheduleAgain(){
+        // Schedule flockers
+        for(int x=0; x < numFlockers; x++) {
+            Flocker flocker = (Flocker) Flockers.flockers.getAllObjects().get(x);
+            flocker.loc = new Double3D(random.nextDouble() * Flockers.width, random.nextDouble() * Flockers.height, random.nextDouble() * Flockers.lenght);
+            if (random.nextBoolean(deadFlockerProbability)) {flocker.dead = true; deadFlockers++;}
+            flockers.setObjectLocation(flocker, flocker.loc);
+            agents_stoppables.put(x, schedule.scheduleRepeating(flocker));
+        }
+    }
+
+
+    public static void main(String[] args) {
         doLoop(Flockers.class, args);
         System.exit(0);
-        }    
     }
+}

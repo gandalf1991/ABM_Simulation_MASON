@@ -13,6 +13,8 @@ import javafx.util.Pair;
 import sim.util.*;
 import sim.engine.*;
 
+import java.util.ArrayList;
+
 
 public class Ant implements Steppable  {                                                            // MODIFIED to use floats
     private static final long serialVersionUID = 1;
@@ -62,7 +64,9 @@ public class Ant implements Steppable  {                                        
 
                 if (v == 0f && max > 0f) {
                     PheromoneToFood_wrapper ftfw = new PheromoneToFood_wrapper();
-                    ftfw.map(new Int2D(x,y));
+                    ArrayList<Int2D> cells = new ArrayList<Int2D>();
+                    cells.add(new Int2D(x,y));
+                    ftfw.map(cells);
                     GUIState_wrapper.getGENERICS().put(new Pair<>(ftfw.getID(), ftfw.getClass_name()), ftfw);
                 }
             }
@@ -86,7 +90,9 @@ public class Ant implements Steppable  {                                        
 
                 if (v == 0f && max > 0f) {
                     PheromoneToHome_wrapper fthw = new PheromoneToHome_wrapper();
-                    fthw.map(new Int2D(x,y));
+                    ArrayList<Int2D> cells = new ArrayList<Int2D>();
+                    cells.add(new Int2D(x,y));
+                    fthw.map(cells);
                     GUIState_wrapper.getGENERICS().put(new Pair<>(fthw.getID(), fthw.getClass_name()), fthw);
                 }
 

@@ -1,7 +1,6 @@
 package Utils;
 
 import sim.util.Int2D;
-import sim.util.MutableDouble;
 import sim.util.MutableDouble2D;
 import sim.util.MutableInt2D;
 import java.awt.Point;

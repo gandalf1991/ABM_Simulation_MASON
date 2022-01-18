@@ -157,7 +157,8 @@
   "generics_create" : [
     {
       "quantity" : 1,
-      "class" : "Cibo",
+      "id" : -2,
+      "class" : "Food",
       "params" : {
         "position" : [
           {

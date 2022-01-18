@@ -8,6 +8,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import sim.util.Int2D;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,7 +31,8 @@ public class Home_wrapper extends SimObject_wrapper {
 
     @Override
     public void map(Object toMap) {
-        Int2D mapping = (Int2D)toMap;
+        is_new = true;
+        ArrayList<Int2D> mapping = (ArrayList<Int2D>)toMap;
         if (Home_wrapper.empty_IDs.size() > 0) {
             ID = Home_wrapper.empty_IDs.first();
             Home_wrapper.empty_IDs.remove(ID);
@@ -38,7 +40,8 @@ public class Home_wrapper extends SimObject_wrapper {
         else {
             ID = quantity;
         }
-        this.params.put("position", new Int2D(mapping.x, mapping.y));
+        ++quantity;
+        this.params.put("position", mapping);
     }
     @Override
     public void create(JSONObject params) {
@@ -55,6 +58,7 @@ public class Home_wrapper extends SimObject_wrapper {
         for (Object c : (JSONArray)params.get("position")) {
             AntsForage.sites.field[((Long)((JSONObject)c).get("x")).intValue()][((Long)((JSONObject)c).get("y")).intValue()] = AntsForage.HOME;
             cells.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
+            AntsForage.HOME_POS.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
         }
         this.params.put("position", cells);
     }
@@ -70,6 +74,7 @@ public class Home_wrapper extends SimObject_wrapper {
     public void delete() {
         for (Int2D c: (ArrayList<Int2D>)params.get("position")) {
             AntsForage.sites.field[c.x][c.y] = 0;
+            AntsForage.HOME_POS.remove(c);
         }
         GUIState_wrapper.getGENERICS().remove(new Pair<>(this.ID, this.getClass_name()));
         empty_IDs.add(ID);

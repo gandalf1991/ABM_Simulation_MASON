@@ -14,6 +14,7 @@ public abstract class SimObject_wrapper {
     protected int ID;
     protected HashMap<String, Object> params = new HashMap<>();
     protected boolean is_new = false;
+    protected int steps_to_live_as_new = 0;
 
     public GUIState_wrapper.SimObjectType getType() {
         return type;
@@ -38,6 +39,15 @@ public abstract class SimObject_wrapper {
     }
     public void setIs_new(boolean is_new) {
         this.is_new = is_new;
+    }
+    public int STLN(){
+        return steps_to_live_as_new;
+    }
+    public void setSTLN(int steps_to_live_as_new){
+        this.steps_to_live_as_new = steps_to_live_as_new;
+    }
+    public void IncrementSTLN(){
+        ++this.steps_to_live_as_new;
     }
 
     public SimObject_wrapper(){}

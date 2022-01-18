@@ -5,11 +5,9 @@
 package Steppables;
 
 import Main.Sim_Controller;
-import Wrappers.GUIState_wrapper;
-import javafx.util.Pair;
-import org.json.simple.JSONObject;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import Main.Update;
 
 public class StepInitiator implements Steppable {
     private static final long serialVersionUID = 1L;
@@ -17,10 +15,13 @@ public class StepInitiator implements Steppable {
     public StepInitiator() {}
 
     public void step(SimState state) {
-
         // check updates
-        if (Sim_Controller.getUpdate().is_new()) {
-            Sim_Controller.getUpdate().setIs_new(Sim_Controller.getSimulation().updateSimulationState(Sim_Controller.getUpdate().getUpdate()));
+        while (!Sim_Controller.getUpdates().isEmpty()) {
+            Update update = Sim_Controller.getUpdates().pop();
+            if(update.is_new()) {
+                update.setIs_new(!Sim_Controller.getSimulation().updateSimulationState(update.getUpdate()));
+                if(update.is_new()) Sim_Controller.getUpdates().push(update);
+            }
         }
     }
 }

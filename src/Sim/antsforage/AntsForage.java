@@ -7,15 +7,12 @@
 package Sim.antsforage;
 
 import Utils.FloatGrid2D;
-import com.jogamp.opengl.math.FloatUtil;
 import sim.engine.*;
 import sim.field.grid.*;
 import sim.util.*;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 
 public /*strictfp*/ class AntsForage extends SimState {                                                                                     // MODIFIED to use floats
@@ -25,7 +22,7 @@ public /*strictfp*/ class AntsForage extends SimState {                         
     public static int GRID_HEIGHT = 100;
     public static int GRID_WIDTH = 100;
 
-    public static ArrayList<Int2D> HOME_POS = new ArrayList<Int2D>();                                                                       // MODIFIED HOME_POS/FOOD_POS/OBST_POS to be more flexible
+    public static ArrayList<Int2D> HOME_POS = new ArrayList<Int2D>();                                                                           // MODIFIED HOME_POS/FOOD_POS/OBST_POS to be more flexible
     public static ArrayList<Int2D> FOOD_POS = new ArrayList<Int2D>();
     public static ArrayList<Int2D> OBST_POS = new ArrayList<Int2D>();
 
@@ -103,14 +100,24 @@ public /*strictfp*/ class AntsForage extends SimState {                         
         // initialize ants
         for(int x=0; x < numAnts; x++) {
             Ant ant = new Ant(x, reward);
-            buggrid.setObjectLocation(ant, HOME_POS.get((x%HOME_POS.size())).x, HOME_POS.get((x%HOME_POS.size())).y);                               // MODIFIED spawn logic to be compatible with multiple homes
+            buggrid.setObjectLocation(ant, HOME_POS.get((x%HOME_POS.size())).x, HOME_POS.get((x%HOME_POS.size())).y);                                 // MODIFIED spawn logic to be compatible with multiple homes
+            ant.last = buggrid.getObjectLocation(ant);
             agents_stoppables.put(x, schedule.scheduleRepeating(Schedule.EPOCH + x, 0, ant, 1));                                 // ADDED insertion in Stoppable collection
         }
+        // Schedule evaporation to happen after the ants move and update
+        schedule.scheduleRepeating(Schedule.EPOCH,1, new Steppable() {
+            public void step(SimState state) { toFoodGrid.multiply(evaporationConstant); toHomeGrid.multiply(evaporationConstant);}
+        }, 1);
     }
 
     public void scheduleAgain(){
         // Schedule ants
         for(int x=0; x < numAnts; x++) {
+            Ant ant = (Ant) buggrid.allObjects.get(x);
+            buggrid.setObjectLocation(ant, HOME_POS.get((x%HOME_POS.size())).x, HOME_POS.get((x%HOME_POS.size())).y);
+            ant.last = buggrid.getObjectLocation(ant);
+            ant.reward = reward;
+            ant.hasFoodItem = false;
             agents_stoppables.put(x, schedule.scheduleRepeating(Schedule.EPOCH + x, 0, (Ant)buggrid.allObjects.get(x), 1));
         }
         // Schedule evaporation to happen after the ants move and update

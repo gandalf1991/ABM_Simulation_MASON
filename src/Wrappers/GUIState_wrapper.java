@@ -4,19 +4,24 @@
 
 package Wrappers;
 
+import Events.EventArgs.CheckStatusEventArgs;
+import Events.EventArgs.SimUpdateEventArgs;
+import Events.Handlers.StateEventHandler;
 import Utils.CustomController;
 import javafx.util.Pair;
+import org.javatuples.Triplet;
 import org.json.simple.JSONObject;
 import sim.display.GUIState;
 import sim.engine.SimState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class GUIState_wrapper extends GUIState {
 
     protected static JSONObject prototype;                                     // to init simulation
-    protected static JSONObject simulationStateJSON;                           // to let others join
 
     protected static HashMap<String, Object> DIMENSIONS;
     protected static HashMap<String, Object> SIM_PARAMS;
@@ -26,7 +31,11 @@ public abstract class GUIState_wrapper extends GUIState {
 
     public static ArrayList<String> agentClasses;
     public static ArrayList<String> genericClasses;
-    public static ArrayList<String> dynamicClasses;      // classes to consider while producing steps
+    public static ArrayList<String> obstacleClasses;
+    public static ArrayList<String> dynamicClasses;                                         // classes to consider while producing steps
+
+    // EVENTS
+    public StateEventHandler<SimUpdateEventArgs> simUpdatedEventHandler = new StateEventHandler<>();
 
     public static enum SimType {
         CONTINUOUS,
@@ -49,9 +58,6 @@ public abstract class GUIState_wrapper extends GUIState {
     }
     public static JSONObject getPrototype() {
         return prototype;
-    };
-    public static JSONObject getSimulationStateJSON() {
-        return simulationStateJSON;
     };
     public static void updateSimulationStateJSON(){
 
@@ -94,4 +100,9 @@ public abstract class GUIState_wrapper extends GUIState {
     public abstract boolean updateSimulationState(JSONObject update);
     public abstract boolean updateSimulationWrapper(SimState state);
     public abstract boolean resetSimulation();
+
+    @Override
+    public String toString(){
+        return "Simulation " + prototype.get("id") + " " + prototype.get("name") + "\nAGENTS: " + getAGENTS().keySet().stream().map(Pair::toString).collect(Collectors.joining(" ")) + "\nGENERICS: " + String.join(" ", getGENERICS().keySet().stream().map(Pair::toString).collect(Collectors.joining("\n"))) + ".";
+    }
 }
