@@ -89,6 +89,15 @@
               "default": {}
             },
             {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
+            },
+            {
               "name": "dead",
               "type": "System.Boolean",
               "is_in_step" : true,
@@ -173,6 +182,15 @@
               ]
             },
             {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
+            },
+            {
               "name": "reward",
               "type": "System.Single",
               "is_in_step" : true,
@@ -229,6 +247,15 @@
                   "y" : 21
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -255,6 +282,15 @@
                   "y" : 45
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -353,6 +389,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -369,7 +414,7 @@
               "name": "position",
               "type": "System.Cells",
               "cells_number" : 8,
-              "is_in_step" : true,
+              "is_in_step" : false,
               "editable_in_init": false,
               "editable_in_play": false,
               "editable_in_pause": true,
@@ -379,6 +424,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -405,6 +459,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -431,6 +494,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -457,6 +529,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -483,6 +564,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -509,6 +599,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -535,6 +634,15 @@
                   "y" : 0
                 }
               ]
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         }

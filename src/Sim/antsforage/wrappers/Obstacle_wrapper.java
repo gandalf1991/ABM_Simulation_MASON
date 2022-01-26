@@ -4,6 +4,7 @@ package Sim.antsforage.wrappers;
 import Sim.antsforage.AntsForage;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
+import com.jogamp.opengl.math.Quaternion;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -50,6 +51,7 @@ public class Obstacle_wrapper extends SimObject_wrapper {
             AntsForage.OBST_POS.add(new Int2D(((Long)((JSONObject)c).get("x")).intValue(), ((Long)((JSONObject)c).get("y")).intValue()));
         }
         this.params.put("position", cells);
+        this.params.put("rotation", new Quaternion(((Number)((JSONObject)params.get("rotation")).get("x")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("y")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("z")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("w")).floatValue()));
     }
     @Override
     public void update(JSONObject params) {

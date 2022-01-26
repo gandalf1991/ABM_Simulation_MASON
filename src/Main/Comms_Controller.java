@@ -9,6 +9,7 @@ import Events.Handlers.EventHandler;
 import Events.Handlers.JSONEventHandler;
 import Events.Handlers.StateEventHandler;
 import Main.Sim_Controller.SimStateEnum;
+import Steppables.StepPublisher;
 import Wrappers.GUIState_wrapper;
 import javafx.util.Pair;
 import org.eclipse.paho.client.mqttv3.*;
@@ -16,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import static Utils.Utilities.compressMessage;
+import static java.lang.System.currentTimeMillis;
 
 public class Comms_Controller {
 
@@ -259,11 +262,11 @@ public class Comms_Controller {
 		response.put("sender", sender);
 		response.put("isAdmin", USERS.get(sender).isAdmin());
 
-		if(result) Sim_Controller.completeStep = true;
-
 		//response
 		publishPrivateResponse(sender, op, result, result? null : "ALREADY_CONNECTED", response);
 		publishPublicResponse(sender, op, result, result? null : "ALREADY_CONNECTED", response);
+
+		if(result) Sim_Controller.completeStep = true;
 	}
 	public void onDisconnection(String op, String sender, JSONObject request){
 		Pair<Boolean, String> res;
@@ -482,11 +485,18 @@ public class Comms_Controller {
 		}
 		return 0;
 	}
-	public static int publishStepOnTopic(long step_id, byte[] step, int topic) {
+	public static int publishStepOnTopic(byte[] step, int topic, boolean retain) {
 		try {
-			MqttMessage message = new MqttMessage(compressMessage(step));
+			MqttMessage message = new MqttMessage();
+			if(step.length == 0) {
+				message.setPayload(step);
+			}
+			else {
+				message = new MqttMessage(compressMessage(step));
+			}
 			//System.out.println("\nStep send: "+ step_id + " on topic " + (step_id-1)%Sim_Controller.simTopics);
 			message.setQos(0);
+			message.setRetained(retain);
 			try {
 				Sim_client.publish("Topic" + topic, message);
 			} catch (MqttException e) {

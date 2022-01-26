@@ -104,6 +104,7 @@ public class Flockers extends SimState {
 
     public void scheduleAgain(){
         // Schedule flockers
+        deadFlockers = 0;
         for(int x=0; x < numFlockers; x++) {
             Flocker flocker = (Flocker) Flockers.flockers.getAllObjects().get(x);
             flocker.loc = new Double3D(random.nextDouble() * Flockers.width, random.nextDouble() * Flockers.height, random.nextDouble() * Flockers.lenght);
@@ -112,7 +113,6 @@ public class Flockers extends SimState {
             agents_stoppables.put(x, schedule.scheduleRepeating(flocker));
         }
     }
-
 
     public static void main(String[] args) {
         doLoop(Flockers.class, args);

@@ -8,6 +8,7 @@ import Sim.antsforage.Ant;
 import Sim.antsforage.AntsForage;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
+import com.jogamp.opengl.math.Quaternion;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -55,6 +56,7 @@ public class Ant_wrapper extends SimObject_wrapper {
         ArrayList<Int2D> cells = new ArrayList<>();
         cells.add(ant.last);
         this.params.put("position", cells);
+        this.params.put("rotation", new Quaternion(0,0,0,1));
         this.params.put("hasFoodItem", ant.hasFoodItem);
         this.params.put("reward", ant.reward);
     }
@@ -76,6 +78,9 @@ public class Ant_wrapper extends SimObject_wrapper {
                 ArrayList<Int2D> cells = new ArrayList<>();
                 cells.add(ant.last);
                 this.params.put("position", cells);
+            }
+            else if(p_name.equals("rotation")) {
+                this.params.put("rotation", new Quaternion(((Number)((JSONObject)p_value).get("x")).floatValue(), ((Number)((JSONObject)p_value).get("y")).floatValue(), ((Number)((JSONObject)p_value).get("z")).floatValue(), ((Number)((JSONObject)p_value).get("w")).floatValue()));
             }
             else if(p_name.equals("hasFoodItem")) {
                 ant.hasFoodItem = (boolean)p_value;

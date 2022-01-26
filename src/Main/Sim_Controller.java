@@ -93,11 +93,12 @@ public class Sim_Controller {
 	public static int simTopics = 60;
 	public static double simStepRate = 0;
 	public static double clientStepRate = 60;
+	private static long elapsedTime = 0;
+	private static long lastRateTime = 0;
+	private static long lastPrintTime = 0;
 	private static int currentSteps = 0;
-	private static long lastRateTime;
-	private static long lastPrintTime;
-	private static long RATE_UPDATE_INTERVAL = 1000L;
-	private static long PRINT_INTERVAL = 5000L;
+	private static long RATE_UPDATE_INTERVAL = 0L;
+	private static long PRINT_INTERVAL = 20000L;
 	public static boolean completeStep = false;
 
 	// CONTROLLERS
@@ -113,12 +114,17 @@ public class Sim_Controller {
 				if(!state.equals(SimStateEnum.PAUSE)){
 					GUIState_wrapper.c.pressPause();
 					state = SimStateEnum.PAUSE;
+					rateAdjuster_stoppable.stop();
+					rateAdjuster = new RateAdjuster(clientStepRate);
+					rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
 				}
 				return true;
 			case STOP:
 				GUIState_wrapper.c.pressStop();
-				resetSimulation();
-				state = SimStateEnum.NOT_READY;
+				stopSimulation();
+				rateAdjuster_stoppable.stop();
+				rateAdjuster = new RateAdjuster(clientStepRate);
+				rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
 				return true;
 		}
 		return false;
@@ -174,8 +180,8 @@ public class Sim_Controller {
 
 		// schedule steppables
 		stepInitiator_stoppable = simulation.scheduleRepeatingImmediatelyBefore(stepInitiator);
-		stepPublisher_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepPublisher);
 		stepRatePrinter_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepRatePrinter);
+		stepPublisher_stoppable = simulation.scheduleRepeatingImmediatelyAfter(stepPublisher);
 		rateAdjuster_stoppable = simulation.scheduleRepeatingImmediatelyAfter(rateAdjuster);
 
 		return true;
@@ -204,7 +210,7 @@ public class Sim_Controller {
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_PAUSED;
 			case 3:
 				GUIState_wrapper.c.pressStop();
-				resetSimulation();
+				stopSimulation();
 				return GUIState_wrapper.c.getPlayState() == SimpleController.PS_STOPPED;
 			case 4:
 				int speed = ((Long)payload.get("value")).intValue();
@@ -253,7 +259,7 @@ public class Sim_Controller {
 		++currentSteps;
 		long l = System.currentTimeMillis();
 		if (l - lastRateTime >= RATE_UPDATE_INTERVAL) {
-			simStepRate = currentSteps;//*(1000/(Double.max(l - lastRateTime, Integer.MIN_VALUE)));		// estimate currentSteps/s as steps produced in x millis * 1 sec/x millis
+			simStepRate = currentSteps*(1000/(Double.max(l - lastRateTime, Integer.MIN_VALUE)));		// estimate currentSteps/s as steps produced in x millis * 1 sec/x millis
 			currentSteps = 0;
 			lastRateTime = l;
 			if(l - lastPrintTime >= PRINT_INTERVAL){
@@ -264,11 +270,19 @@ public class Sim_Controller {
 		}
 	}
 	public static boolean resetSimulation(){
+		Comms_Controller.publishStepOnTopic(new byte[0], 0, true);
 		executor.shutdownNow();
 		if (executor.isShutdown()) executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
 		simulation.state.schedule.reset();
 		simulation.resetSimulation();
 		state = SimStateEnum.READY;
+		return true;
+	}
+	public static boolean stopSimulation(){
+		Comms_Controller.publishStepOnTopic(new byte[0], 0, true);
+		executor.shutdownNow();
+		if (executor.isShutdown()) executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+		state = SimStateEnum.NOT_READY;
 		return true;
 	}
 

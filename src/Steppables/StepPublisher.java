@@ -11,6 +11,7 @@ import Utils.Float3D;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
 import com.google.common.io.ByteArrayDataOutput;
+import com.jogamp.opengl.math.Quaternion;
 import ec.util.MersenneTwisterFast;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
@@ -26,7 +27,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import static com.google.common.io.ByteStreams.newDataOutput;
 import static java.lang.System.currentTimeMillis;
@@ -36,30 +36,32 @@ public class StepPublisher implements Steppable {
     private MersenneTwisterFast random = new MersenneTwisterFast();
     private static double send_probability = 0.5d;
     int step_id_bytes = 8;
+    public static long start_millis;
 
     public StepPublisher() {}
 
     public void step(SimState state) {
 
-        long time_before = currentTimeMillis();
         JSONArray agent_prototypes;
         JSONArray generic_prototypes;
         JSONArray obstacle_prototypes;
-        long step_id = state.schedule.getSteps();
-        if(step_id == 1) Sim_Controller.completeStep = true;
+        final long step_id = state.schedule.getSteps();
+        final boolean completeStep = step_id == 1 || Sim_Controller.completeStep;                                           // mi assicuro di essere l'unico a leggere true in modo
+        Sim_Controller.completeStep = false;                                                                                // da evitare interfogliamenti
 
-        System.out.println("Produced: " + Sim_Controller.simStepRate + "steps/s | Expected: " + Sim_Controller.clientStepRate + "steps/s");
-        System.out.println("Send probability: " + send_probability);
 
         // check if step is complete(mandatory) and eventually avoid skipping it
-        if(!Sim_Controller.completeStep) {
+        if(!completeStep) {
             //  calcolare la send prob                      60 steps/s  /  90 steps/s  => 0.666
             if(Sim_Controller.simStepRate > 0) {
                 send_probability = Math.min((Sim_Controller.clientStepRate / Sim_Controller.simStepRate), 1d);
+                System.out.println("Produced: " + Sim_Controller.simStepRate + "steps/s | Expected: " + Sim_Controller.clientStepRate + "steps/s");
+                System.out.println("Send probability: " + send_probability);
                 //  non inviamo lo step con prob -send prob
                 if(!random.nextBoolean(send_probability)) return;
             }
         }
+
 
         // Update/gather structures and variables to use in new Thread
         boolean is_discrete = GUIState_wrapper.getPrototype().get("type").equals("DISCRETE");
@@ -89,9 +91,9 @@ public class StepPublisher implements Steppable {
 
             //System.out.print("STEP: |||" + step_id + "||");
 
-            ByteArrayDataOutput[] agentsBBs = constructByteBuffer(AGENTS_clone, is_discrete, agent_prototypes);
-            ByteArrayDataOutput[] genericsBBs = constructByteBuffer(GENERICS_clone, is_discrete, generic_prototypes);
-            ByteArrayDataOutput[] obstaclesBBs = constructByteBuffer(OBSTACLES_clone, is_discrete, obstacle_prototypes);
+            ByteArrayDataOutput[] agentsBBs = constructByteBuffer(AGENTS_clone, completeStep, agent_prototypes);
+            ByteArrayDataOutput[] genericsBBs = constructByteBuffer(GENERICS_clone, completeStep, generic_prototypes);
+            ByteArrayDataOutput[] obstaclesBBs = constructByteBuffer(OBSTACLES_clone, completeStep, obstacle_prototypes);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             try {
@@ -109,7 +111,7 @@ public class StepPublisher implements Steppable {
 
             rawBB = ByteBuffer.allocate(1 + step_id_bytes + quantitiesBB.capacity() + agentsBB.capacity() + genericsBB.capacity() + obstaclesBB.capacity());
             rawBB.order(ByteOrder.BIG_ENDIAN);
-            rawBB.put(Sim_Controller.completeStep ? (byte) 1 : (byte) 0);                 // Complete flag
+            rawBB.put(completeStep ? (byte) 1 : (byte) 0);                                // Complete flag
             rawBB.putLong(step_id);                                                       // Step ID
             rawBB.put(quantitiesBB);                                                      // Quantities
             rawBB.put(agentsBB);                                                          // Agents
@@ -121,11 +123,10 @@ public class StepPublisher implements Steppable {
             message = new byte[length];
             rawBB.get(message, 0, length);
 
-            if(Sim_Controller.completeStep) {
-                Comms_Controller.publishStepOnTopic(step_id, message, 0);
-                Sim_Controller.completeStep = false;
+            if(completeStep) {
+                Comms_Controller.publishStepOnTopic(message, 0, true);
             }
-            else if(Sim_Controller.state != Sim_Controller.SimStateEnum.PLAY) Comms_Controller.publishStepOnTopic(step_id, message, 0);
+            else if(Sim_Controller.state != Sim_Controller.SimStateEnum.PLAY) Comms_Controller.publishStepOnTopic(message, 0, true);
             else Comms_Controller.publishStep(step_id, message);
             //System.out.println("STEP: " + step_id + "| Before: " + message.length + "| After: " + after);
 
@@ -138,7 +139,7 @@ public class StepPublisher implements Steppable {
             //System.out.print("|\n");
         });
 
-        long time_after = currentTimeMillis();
+        //long time_after = currentTimeMillis();
         //System.out.println(getClass().getName() + " | " + Thread.currentThread().getStackTrace()[1].getMethodName() + "| " + (time_after-time_before) + " millis.");
 
     }
@@ -161,7 +162,7 @@ public class StepPublisher implements Steppable {
         }
         return dynamic_protos;
     }
-    public ByteArrayDataOutput[] constructByteBuffer(HashMap<Pair<Integer, String>, SimObject_wrapper> simObjectCollection, boolean is_discrete, JSONArray prototypes) {
+    public ByteArrayDataOutput[] constructByteBuffer(HashMap<Pair<Integer, String>, SimObject_wrapper> simObjectCollection, boolean completeStep, JSONArray prototypes) {
         JSONArray params;
 
         ByteArrayDataOutput quantitiesBB = newDataOutput();
@@ -172,16 +173,19 @@ public class StepPublisher implements Steppable {
             Object[] simObjects = simObjectCollection.entrySet().stream().filter(entry -> entry.getKey().getValue().equals(((JSONObject)p).get("class"))).map(wrapperEntry -> wrapperEntry.getValue()).toArray();
             for (Object s_o : simObjects) {
                 params = (JSONArray)((JSONObject)p).get("params");
-                if (((JSONObject)p).get("static_on_death").equals(true) && ((SimObject_wrapper)s_o).getParams().containsKey("dead") && (boolean)((SimObject_wrapper) s_o).getParams().get("dead") && !((SimObject_wrapper)s_o).Is_new()){ continue; }       // Spaghetti code
-                if (((JSONObject)p).get("is_in_step").equals(false) && !((SimObject_wrapper)s_o).Is_new()) {continue;}
-                ++quantity;
-                //System.out.print(((SimObject_wrapper)s_o).getID() + "|");
-                simObjectsBB.writeInt(((SimObject_wrapper)s_o).getID());
 
-                if(Sim_Controller.completeStep){
+                if(completeStep){
+                    ++quantity;
+                    simObjectsBB.writeInt(((SimObject_wrapper)s_o).getID());
                     WriteParams(s_o, params, simObjectsBB, true);
                 }
                 else {
+
+                    if (((JSONObject)p).get("static_on_death").equals(true) && ((SimObject_wrapper)s_o).getParams().containsKey("dead") && (boolean)((SimObject_wrapper) s_o).getParams().get("dead") && !((SimObject_wrapper)s_o).Is_new()){ continue; }       // Spaghetti code
+                    if (((JSONObject)p).get("is_in_step").equals(false) && !((SimObject_wrapper)s_o).Is_new()) {continue;}
+
+                    ++quantity;
+                    simObjectsBB.writeInt(((SimObject_wrapper)s_o).getID());
                     if(((SimObject_wrapper)s_o).Is_new()){
                         simObjectsBB.writeBoolean(true);
                         WriteParams(s_o, params, simObjectsBB, true);
@@ -236,6 +240,12 @@ public class StepPublisher implements Steppable {
                         simObjectsBB.writeFloat(((Float3D)param_entry).y);
                         simObjectsBB.writeFloat(((Float3D)param_entry).z);
                     }
+                    break;
+                case "System.Rotation":
+                    simObjectsBB.writeFloat(((Quaternion)param_entry).getX());
+                    simObjectsBB.writeFloat(((Quaternion)param_entry).getY());
+                    simObjectsBB.writeFloat(((Quaternion)param_entry).getZ());
+                    simObjectsBB.writeFloat(((Quaternion)param_entry).getW());
                     break;
                 case "System.Cells":
                     if(GUIState_wrapper.getDIMENSIONS().size() == 2){

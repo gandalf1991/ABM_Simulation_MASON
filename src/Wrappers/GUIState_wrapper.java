@@ -100,6 +100,7 @@ public abstract class GUIState_wrapper extends GUIState {
     public abstract boolean updateSimulationState(JSONObject update);
     public abstract boolean updateSimulationWrapper(SimState state);
     public abstract boolean resetSimulation();
+    public abstract boolean stopSimulation();
 
     @Override
     public String toString(){

@@ -289,7 +289,6 @@ public class AntsForageForUnity extends GUIState_wrapper {
     }
     @Override
     public boolean resetSimulation(){
-
         // Reschedule ants
         ((AntsForage)state).scheduleAgain();
 
@@ -298,6 +297,18 @@ public class AntsForageForUnity extends GUIState_wrapper {
         // GENERICS
         PheromoneToFood_wrapper.Reset();
         PheromoneToHome_wrapper.Reset();
+
+        return true;
+    }
+    @Override
+    public boolean stopSimulation(){
+        ArrayList<SimObject_wrapper> wrappersToDelete = new ArrayList<>();
+
+        wrappersToDelete.addAll(AGENTS.values());
+        wrappersToDelete.addAll(GENERICS.values());
+        wrappersToDelete.addAll(OBSTACLES.values());
+
+        for (SimObject_wrapper w : wrappersToDelete) w.delete();
 
         return true;
     }

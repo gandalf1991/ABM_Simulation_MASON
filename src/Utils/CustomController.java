@@ -93,7 +93,7 @@ public class CustomController {
     public synchronized void pressStop() {
         if (this.getPlayState() != PS_STOPPED) {
             this.killPlayThread();
-            //this.simulation.finish();
+            this.simulation.finish();
             this.setPlayState(PS_STOPPED);
             if (this.getIncrementSeedOnStop()) {
                 this.randomSeed = (long)((int)(this.randomSeed + 1L));

@@ -121,8 +121,8 @@ OP 998 SERVER_ERROR
 JSON containing all simulations
 
 ####STEP_MESSAGE####
-|||        0       ||1000||  1000  |...|   500   |   100   |...|    20   ||  id|x|y|z|    ...x1000...  ||...||  id|x|y|z|    ...x500....   ||  id|x|y|z|    ...x100....   ||...||  id|x|y|z|    ...x20....   |||
-|||     complete   ||step||  #A1   |...|   #An   |   #G1   |...|   #Gn   ||   params of class "#A1"    ||...||    params of class "#An"    ||    params of class "#G1"    ||...||    params of class "#Gn"   |||
+|||        0       ||1000||  1000  |...|   500   |   100   |...|    20   ||  id| 0/1 |x|y|z|    ...x1000...  ||...||  id|x|y|z|    ...x500....   ||  id|x|y|z|    ...x100....   ||...||  id|x|y|z|    ...x20....   |||
+|||     complete   ||step||  #A1   |...|   #An   |   #G1   |...|   #Gn   ||       params of class "#A1"      ||...||    params of class "#An"    ||    params of class "#G1"    ||...||    params of class "#Gn"   |||
 
 0. Una flag che ci dice se lo step è uno step completo di tutti gli oggetti di simulazione
 1. Numero di Step

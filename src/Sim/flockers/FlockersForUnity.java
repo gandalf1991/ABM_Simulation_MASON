@@ -172,6 +172,16 @@ public class FlockersForUnity extends GUIState_wrapper {
 
         return true;
     }
+    @Override
+    public boolean stopSimulation(){
+        ArrayList<SimObject_wrapper> wrappersToDelete = new ArrayList<>();
+
+        wrappersToDelete.addAll(AGENTS.values());
+
+        for (SimObject_wrapper w : wrappersToDelete) w.delete();
+
+        return true;
+    }
 }
 
 
