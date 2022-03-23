@@ -64,6 +64,8 @@ public class Comms_Controller {
 
 	// USERS INFOS
 	private HashMap<String, User> USERS = new HashMap<>();
+	private long ADMIN_LAST_SEEN;
+	private int ADMIN_TIMEOUT = 10000;
 
 	//OPERATIONS LIST
 	private static HashMap<String, String> IN_OPS = new HashMap<String, String>() {{
@@ -233,8 +235,11 @@ public class Comms_Controller {
 	public void onCheckStatus(String op, String sender, JSONObject request) {
 		Sim_Controller.SimStateEnum state;
 		JSONObject response = new JSONObject();
-
 		JSONObject payload = (JSONObject) request.get("payload");
+
+		if(USERS.get(sender).isAdmin()){
+			ADMIN_LAST_SEEN = System.currentTimeMillis();
+		}
 
 		// trigger init sim event
 		CheckStatusEventArgs e = new CheckStatusEventArgs(payload);
@@ -245,7 +250,6 @@ public class Comms_Controller {
 			response.put("adminName", USERS.entrySet().stream().filter((stringUserEntry -> stringUserEntry.getValue().isAdmin())).collect(Collectors.toList()).get(0).getKey());
 			response.put("simId", GUIState_wrapper.getPrototype().get("id"));
 			response.put("simStepRate", Sim_Controller.simStepRate);
-			response.put("sim_params", GUIState_wrapper.getSIM_PARAMS());
 		}
 
 		// response
@@ -294,6 +298,8 @@ public class Comms_Controller {
 
 		// trigger sim list event
 		SimListRequestEventArgs e = new SimListRequestEventArgs(payload);
+		e.getPayload().put("isAdmin", USERS.get(sender).isAdmin());
+
 		sim_list = simListRequestEventArgsEventHandler.invoke(this, e);
 		result = sim_list != null;
 
@@ -323,8 +329,8 @@ public class Comms_Controller {
 		result = simUpdateEventHandler.invoke(this, e);
 
 		// response
-		publishPrivateResponse(sender, op, result, result? null : "UPDATE_FAILED");
-		publishPublicResponse(sender, op, result, result? null : "UPDATE_FAILED", new JSONObject());
+		publishPrivateResponse(sender, op, result, result? null : "UPDATE_FAILED", request);
+		publishPublicResponse(sender, op, result, result? null : "UPDATE_FAILED", request);
 	}
 	public void onSimCommand(String op, String sender, JSONObject request){
 		boolean result;

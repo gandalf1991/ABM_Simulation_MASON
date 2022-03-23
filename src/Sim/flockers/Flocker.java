@@ -209,7 +209,7 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 			dz = dz / dis * Flockers.jump;
 		}
 
-		/*if (loc.x + dx > Flockers.width || loc.x + dx < 0) {
+		if (loc.x + dx > Flockers.width || loc.x + dx < 0) {
 			dx = -dx;
 		}
 		if (loc.y + dy > Flockers.lenght || loc.y + dy < 0) {
@@ -217,13 +217,12 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 		}
 		if (loc.z + dz > Flockers.height || loc.z + dz < 0) {
 			dz = -dz;
-		}*/
+		}
 
 		lastd = new Double3D(dx,dy,dz);
 		loc = new Double3D(Flockers.flockers.stx(loc.x + dx), Flockers.flockers.sty(loc.y + dy), Flockers.flockers.stz(loc.z + dz));
 		Flockers.flockers.setObjectLocation(this, loc);
 	}
-
 }
 
 

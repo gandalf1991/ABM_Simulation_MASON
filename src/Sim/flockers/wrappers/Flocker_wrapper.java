@@ -9,15 +9,13 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import Sim.flockers.*;
 import sim.util.Double3D;
-import ec.util.MersenneTwisterFast;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Flocker_wrapper extends SimObject_wrapper {
 
-    MersenneTwisterFast random = new MersenneTwisterFast();
     static private int quantity = 0;
-    static private SortedSet<Integer> empty_IDs = new TreeSet<>();;
+    static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
     private Flocker flocker;
 
     public static int getQuantity() {
@@ -30,12 +28,14 @@ public class Flocker_wrapper extends SimObject_wrapper {
         return flocker;
     }
 
-    public Flocker_wrapper(){}
+    public Flocker_wrapper(){
+        type = GUIState_wrapper.SimObjectType.AGENT;
+        class_name = "Flocker";
+    }
     public Flocker_wrapper(Object toMap, JSONArray params){
         type = GUIState_wrapper.SimObjectType.AGENT;
         class_name = "Flocker";
         map(toMap);
-        is_new = true;
     }
 
     @Override
@@ -94,5 +94,4 @@ public class Flocker_wrapper extends SimObject_wrapper {
         empty_IDs.add(ID);
         --quantity;
     }
-
 }

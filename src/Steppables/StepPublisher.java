@@ -181,7 +181,7 @@ public class StepPublisher implements Steppable {
                 }
                 else {
 
-                    if (((JSONObject)p).get("static_on_death").equals(true) && ((SimObject_wrapper)s_o).getParams().containsKey("dead") && (boolean)((SimObject_wrapper) s_o).getParams().get("dead") && !((SimObject_wrapper)s_o).Is_new()){ continue; }       // Spaghetti code
+                    if (((SimObject_wrapper)s_o).getParams().containsKey((String)((JSONObject)p).get("state_if_absent")) && (boolean)((SimObject_wrapper) s_o).getParams().get((String)((JSONObject)p).get("state_if_absent")) && !((SimObject_wrapper)s_o).Is_new()){ continue; }
                     if (((JSONObject)p).get("is_in_step").equals(false) && !((SimObject_wrapper)s_o).Is_new()) {continue;}
 
                     ++quantity;
@@ -190,7 +190,7 @@ public class StepPublisher implements Steppable {
                         simObjectsBB.writeBoolean(true);
                         WriteParams(s_o, params, simObjectsBB, true);
                         ((SimObject_wrapper)s_o).IncrementSTLN();
-                        if(((SimObject_wrapper)s_o).STLN() >= 30){
+                        if(((SimObject_wrapper)s_o).STLN() >= 15){
                             ((SimObject_wrapper)s_o).setIs_new(false);
                             ((SimObject_wrapper)s_o).setSTLN(0);
                         }

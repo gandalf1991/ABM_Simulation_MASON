@@ -192,7 +192,9 @@ public class AntsForageForUnity extends GUIState_wrapper {
         // delete
         if(update.containsKey("agents_delete")) {
             for (Object a_d : (JSONArray) update.get("agents_delete")) {
-                AGENTS.get(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), (String) ((JSONObject) a_d).get("class"))).delete();
+                if(AGENTS.containsKey(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), (String) ((JSONObject) a_d).get("class")))){
+                    AGENTS.get(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), (String) ((JSONObject) a_d).get("class"))).delete();
+                }
             }
         }
 
@@ -232,7 +234,9 @@ public class AntsForageForUnity extends GUIState_wrapper {
         // delete
         if(update.containsKey("generics_delete")) {
             for (Object g_d : (JSONArray) update.get("generics_delete")) {
-                GENERICS.get(new Pair<>(((Number) ((JSONObject) g_d).get("id")).intValue(), (String) ((JSONObject) g_d).get("class"))).delete();
+                if(GENERICS.containsKey(new Pair<>(((Number) ((JSONObject) g_d).get("id")).intValue(), (String) ((JSONObject) g_d).get("class")))){
+                    GENERICS.get(new Pair<>(((Number) ((JSONObject) g_d).get("id")).intValue(), (String) ((JSONObject) g_d).get("class"))).delete();
+                }
             }
         }
 
@@ -248,7 +252,9 @@ public class AntsForageForUnity extends GUIState_wrapper {
         // delete
         if(update.containsKey("obstacles_delete")) {
             for (Object o_d : (JSONArray) update.get("obstacles_delete")) {
-                OBSTACLES.get(new Pair<>(((Number) ((JSONObject) o_d).get("id")).intValue(), (String) ((JSONObject) o_d).get("class"))).delete();
+                if(OBSTACLES.containsKey(new Pair<>(((Number) ((JSONObject) o_d).get("id")).intValue(), (String) ((JSONObject) o_d).get("class")))) {
+                    OBSTACLES.get(new Pair<>(((Number) ((JSONObject) o_d).get("id")).intValue(), (String) ((JSONObject) o_d).get("class"))).delete();
+                }
             }
         }
 
@@ -309,6 +315,13 @@ public class AntsForageForUnity extends GUIState_wrapper {
         wrappersToDelete.addAll(OBSTACLES.values());
 
         for (SimObject_wrapper w : wrappersToDelete) w.delete();
+
+        Ant_wrapper.empty_IDs.clear();
+        Food_wrapper.empty_IDs.clear();
+        Home_wrapper.empty_IDs.clear();
+        PheromoneToFood_wrapper.empty_IDs.clear();
+        PheromoneToHome_wrapper.empty_IDs.clear();
+        Obstacle_wrapper.empty_IDs.clear();
 
         return true;
     }

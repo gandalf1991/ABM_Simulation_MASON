@@ -121,18 +121,22 @@ OP 998 SERVER_ERROR
 JSON containing all simulations
 
 ####STEP_MESSAGE####
-|||        0       ||1000||  1000  |...|   500   |   100   |...|    20   ||  id| 0/1 |x|y|z|    ...x1000...  ||...||  id|x|y|z|    ...x500....   ||  id|x|y|z|    ...x100....   ||...||  id|x|y|z|    ...x20....   |||
-|||     complete   ||step||  #A1   |...|   #An   |   #G1   |...|   #Gn   ||       params of class "#A1"      ||...||    params of class "#An"    ||    params of class "#G1"    ||...||    params of class "#Gn"   |||
+|||       0       ||1000||  1000  |...|   500   |   100   |...|    20   |   100   |...|    20   ||  id| 0/1 |x|y|z|    ...x1000...  ||...||  id|x|y|z|    ...x500....   ||  id|x|y|z|    ...x100....   ||...||  id|x|y|z|    ...x20....   |||
+|||    complete   ||step||  #A1   |...|   #An   |   #G1   |...|   #Gn   |   #O1   |...|   #On   ||       params of class "#A1"      ||...||    params of class "#An"    ||    params of class "#G1"    ||...||    params of class "#Gn"   |||
 
 0. Una flag che ci dice se lo step è uno step completo di tutti gli oggetti di simulazione
 1. Numero di Step
 2. (#NA) Numeri di elementi che variano rispetto i (#NA) tipi di Agenti       (#NA) codificata nel JSON della SIM
-3. (#NO) Numeri di elementi che variano rispetto i (#NO) tipi di Oggetti      (#NO) codificata nel JSON della SIM
-4. #NA Agenti
-  4.1 ID
-  4.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM
-  4.3 (#PA-NA) di parametri                      (#PA-NA) codificata nel JSON della SIM
-5. #NO Oggetti
+3. (#NG) Numeri di elementi che variano rispetto i (#NG) tipi di Oggetti      (#NG) codificata nel JSON della SIM
+4. (#NO) Numeri di elementi che variano rispetto i (#NO) tipi di Oggetti      (#NO) codificata nel JSON della SIM
+5. X #NA Agenti
   5.1 ID
   5.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM
-  5.3 (#PO-NA) di parametri                      (#PO-NO) codificata nel JSON della SIM
+  5.3 (#PA-NA) di parametri                      (#PA-NA) codificata nel JSON della SIM
+6. X #NG Oggetti
+  6.1 ID
+  6.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM
+  6.3 (#PA-NG) di parametri                      (#PA-NG) codificata nel JSON della SIM
+7. X #NO Ostacoli
+  7.1 ID
+  7.2 (#D) di dimensioni spaziali                (#D) codificata nel JSON della SIM

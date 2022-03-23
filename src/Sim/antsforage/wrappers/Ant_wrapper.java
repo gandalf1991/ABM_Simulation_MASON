@@ -22,7 +22,7 @@ import java.util.TreeSet;
 public class Ant_wrapper extends SimObject_wrapper {
 
     static private int quantity = 0;
-    static private SortedSet<Integer> empty_IDs = new TreeSet<>();;
+    static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
     private Ant ant;
 
     public static int getQuantity() {
@@ -35,7 +35,10 @@ public class Ant_wrapper extends SimObject_wrapper {
         return ant;
     }
 
-    public Ant_wrapper(){}
+    public Ant_wrapper(){
+        type = GUIState_wrapper.SimObjectType.AGENT;
+        class_name = "Ant";
+    }
     public Ant_wrapper(Object toMap, JSONArray params){
         type = GUIState_wrapper.SimObjectType.AGENT;
         class_name = "Ant";
@@ -110,7 +113,7 @@ public class Ant_wrapper extends SimObject_wrapper {
     }
     @Override
     public void reset(){
-        is_new = false;
+        is_new = true;
         steps_to_live_as_new = 0;
         updateWrapper();
     }

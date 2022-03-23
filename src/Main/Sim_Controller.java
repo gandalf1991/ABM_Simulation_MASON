@@ -9,6 +9,7 @@ import Steppables.StepInitiator;
 import Steppables.StepPublisher;
 import Wrappers.GUIState_wrapper;
 import org.jetbrains.annotations.NotNull;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,7 +20,7 @@ import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -28,7 +29,7 @@ public class Sim_Controller {
 	// SIMULATION
 	private static JSONObject sim_list = new JSONObject();
 	private JSONObject current_sim = new JSONObject();
-	private static Stack<Update> updates = new Stack<Update>(){};
+	private static ConcurrentLinkedQueue<Update> updates = new ConcurrentLinkedQueue<Update>(){};
 	private static GUIState_wrapper simulation;
 	private static SimState simstate;
 	private static byte[] step;
@@ -44,10 +45,10 @@ public class Sim_Controller {
 	public static void setSimulation(GUIState_wrapper simulation) {
 		Sim_Controller.simulation = simulation;
 	}
-	public static Stack<Update> getUpdates() {
+	public static ConcurrentLinkedQueue<Update> getUpdates() {
 		return updates;
 	}
-	public static void setUpdates(Stack<Update> updates) {
+	public static void setUpdates(ConcurrentLinkedQueue<Update> updates) {
 		Sim_Controller.updates = updates;
 	}
 	public static double getClientStepRate() {
@@ -132,7 +133,12 @@ public class Sim_Controller {
 	private static JSONObject onSimListRequestEventHandle(Object source, SimListRequestEventArgs e) throws IOException, ParseException {
 		JSONParser parser = new JSONParser();
 		sim_list = (JSONObject) parser.parse(new FileReader("Simulation list example.json"));
-		return sim_list;
+		JSONObject sim_list_edited = sim_list;
+
+		if((boolean) e.getPayload().get("isAdmin")) return sim_list;
+
+		else ((JSONArray)sim_list_edited.get("list")).set(((Long)GUIState_wrapper.getPrototype().get("id")).intValue(), GUIState_wrapper.getPrototype());
+		return sim_list_edited;
 	}
 	private static boolean onSimInitializeEventHandle(Object source, SimInitializeEventArgs e) throws InstantiationException, IllegalAccessException {
 		return SimInitialize(e.getPayload());
@@ -186,10 +192,10 @@ public class Sim_Controller {
 
 		return true;
 	}
-	private static boolean SimUpdate(@NotNull JSONObject payload) {
+	private static boolean SimUpdate(@NotNull JSONObject payload) 	{
 		SimStateEnum old_state = state;
 		state = SimStateEnum.BUSY;
-		updates.push(new Update(true, payload));
+		updates.add(new Update(true, payload));
 		state = old_state;
 		return true;
 	}
@@ -282,6 +288,7 @@ public class Sim_Controller {
 		Comms_Controller.publishStepOnTopic(new byte[0], 0, true);
 		executor.shutdownNow();
 		if (executor.isShutdown()) executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+		simulation.stopSimulation();
 		state = SimStateEnum.NOT_READY;
 		return true;
 	}

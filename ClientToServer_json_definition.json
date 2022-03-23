@@ -16,6 +16,13 @@ OP 006 SIM_COMMAND
 OP 007 RESPONSE
 OP 999 CLIENT_ERROR
 
+#### COMMAND_LIST ####
+CMD 0 STEP
+CMD 1 PLAY
+CMD 2 PAUSE
+CMD 3 STOP
+CMD 4 SPEED
+
 #### OP 000 - CHECK_STATUS_PAYLOAD ####
 {
   "type" : "heartbeat"
@@ -141,6 +148,11 @@ OP 999 CLIENT_ERROR
   "sim_params" : {
     "cohesion" : 1.9,
     "neighborhood" : 20
+  },
+  "sim_dimensions" : {
+    "x" : 100,
+    "y" : 100,
+    "z" : 100
   },
   "agents_update" : [
     {

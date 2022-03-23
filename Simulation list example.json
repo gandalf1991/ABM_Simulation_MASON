@@ -3,23 +3,23 @@
     {
       "id": 0,
       "name": "Flockers",
-      "description": "....",
-      "type": "CONTINUOUS",
+      "description": "This is a simple example of Boids-style flocking, hastily put together late one night at the SwarmFest 2004 conference. It's much simpler and somewhat faster than our Woims and Woims3D models, which employ sinusoidal movement of multiple worm segments, mostly for fun. Incidentally, Craig Reynolds won a techincal Oscar (Scientific and Engineering) for his Boids algorithm.",
+      "type": "Continuous",
       "dimensions": [
         {
           "name": "x",
           "type": "System.Int32",
-          "default": 250
+          "default": 100
         },
         {
           "name": "y",
           "type": "System.Int32",
-          "default": 250
+          "default": 100
         },
         {
           "name": "z",
           "type": "System.Int32",
-          "default": 250
+          "default": 100
         }
       ],
       "sim_params": [
@@ -31,7 +31,7 @@
         {
           "name": "avoidance",
           "type": "System.Single",
-          "default": 0.5
+          "default": 2.0
         },
         {
           "name": "randomness",
@@ -51,7 +51,7 @@
         {
           "name": "deadFlockerProbability",
           "type": "System.Single",
-          "default": 0.2
+          "default": 0.05
         },
         {
           "name": "neighborhood",
@@ -76,8 +76,8 @@
           "layer" : "flockers",
           "shares_position" : true,
           "is_in_step" : true,
-          "static_on_death" : true,
-          "to_keep_if_not_in_step" : true,
+          "state_if_absent" : "dead",
+          "to_keep_if_absent" : true,
           "params": [
             {
               "name": "position",
@@ -87,15 +87,6 @@
               "editable_in_play": false,
               "editable_in_pause": true,
               "default": {}
-            },
-            {
-              "name": "rotation",
-              "type": "System.Rotation",
-              "is_in_step" : false,
-              "editable_in_init": false,
-              "editable_in_play": false,
-              "editable_in_pause": true,
-              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             },
             {
               "name": "dead",
@@ -115,8 +106,8 @@
     {
       "id": 1,
       "name": "AntsForage",
-      "description": "....",
-      "type": "DISCRETE",
+      "description": "This is a simulation of artificial ants foraging from a nest, discovering a food source in the face of obstacles, and then establishing a trail between the nest and food source. The model uses two pheromones which set up gradients to the nest and to the food source respectively. The pheromones evaporate as well. You can change some of these constants. A two-pheromone model is likely not biological, but this model is based on a series of papers we did showing a strong relationship between ant pheromone algorithms and dynamic programming.",
+      "type": "Discrete",
       "dimensions": [
         {
           "name": "x",
@@ -163,8 +154,8 @@
           "layer" : "buggrid",
           "shares_position" : true,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -197,7 +188,7 @@
               "editable_in_init": true,
               "editable_in_play": true,
               "editable_in_pause": true,
-              "default": 0.9
+              "default": 0
             },
             {
               "name": "hasFoodItem",
@@ -218,8 +209,8 @@
           "layer" : "sites",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -265,8 +256,8 @@
           "layer" : "sites",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -300,8 +291,8 @@
           "layer" : "to_home",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -325,7 +316,7 @@
               "editable_in_init": false,
               "editable_in_play": true,
               "editable_in_pause": true,
-              "default": 0
+              "default": 1
             }
           ]
         },
@@ -335,8 +326,8 @@
           "layer" : "to_food",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -360,7 +351,7 @@
               "editable_in_init": false,
               "editable_in_play": true,
               "editable_in_pause": true,
-              "default": 0
+              "default": 1
             }
           ]
         }
@@ -372,8 +363,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -407,8 +398,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -442,8 +433,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -477,8 +468,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -512,8 +503,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -547,8 +538,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -582,8 +573,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",
@@ -617,8 +608,8 @@
           "layer" : "obstacles",
           "shares_position" : false,
           "is_in_step" : true,
-          "static_on_death" : false,
-          "to_keep_if_not_in_step" : false,
+          "state_if_absent" : "",
+          "to_keep_if_absent" : false,
           "params": [
             {
               "name": "position",

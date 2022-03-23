@@ -17,7 +17,7 @@ import java.util.TreeSet;
 public class Obstacle_wrapper extends SimObject_wrapper {
     private final String class_name;
     static private int quantity = 0;
-    static private SortedSet<Integer> empty_IDs = new TreeSet<>();;
+    static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
 
     public static int getQuantity() {
         return quantity;

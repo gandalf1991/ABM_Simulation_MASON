@@ -28,6 +28,7 @@ public class JSONEventHandler<TEventArgs>
         if (eventDelegateArray.size()>0)
             eventDelegateArray.forEach(p -> {
                 try {
+                    responses.clear();
                     responses.add(p.invoke(source, eventArgs));
                 } catch (IOException e) {
                     e.printStackTrace();

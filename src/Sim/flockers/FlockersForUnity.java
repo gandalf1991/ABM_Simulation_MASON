@@ -4,6 +4,8 @@
 
 package Sim.flockers;
 
+import Sim.antsforage.Ant;
+import Sim.antsforage.AntsForage;
 import Sim.flockers.wrappers.Flocker_wrapper;
 import Utils.CustomController;
 import Wrappers.GUIState_wrapper;
@@ -83,7 +85,14 @@ public class FlockersForUnity extends GUIState_wrapper {
         // Init raw Simulation
         this.start();
 
-        // Init Ant wrappers
+        // Init raw Flockers dead param
+        //params = ((JSONArray)((JSONObject)((JSONArray)prototype.get("agent_prototypes")).get(0)).get("params"));
+        //Object[] p1 = params.stream().filter(o -> ((String) ((JSONObject)o).get("name")).equals("dead")).toArray();
+        //for (Object a : Flockers.flockers.getAllObjects()) {
+        //    ((Flocker) a).dead = (boolean) ((JSONObject)p1[0]).get("default");
+        //}
+
+        // Init Flocker wrappers
         Flocker_wrapper.setQuantity(Flockers.numFlockers);
         for (int i=0; i<Flockers.numFlockers; i++){
             Flocker_wrapper aw = new Flocker_wrapper(Flockers.flockers.getAllObjects().objs[i], params);
@@ -138,7 +147,9 @@ public class FlockersForUnity extends GUIState_wrapper {
         // delete
         if(update.containsKey("agents_delete")) {
             for (Object a_d : (JSONArray) update.get("agents_delete")) {
-                AGENTS.get(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), agentClasses.get(0))).delete();
+                if(AGENTS.containsKey(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), agentClasses.get(0)))) {
+                    AGENTS.get(new Pair<>(((Number) ((JSONObject) a_d).get("id")).intValue(), agentClasses.get(0))).delete();
+                }
             }
         }
         return true;
@@ -179,6 +190,8 @@ public class FlockersForUnity extends GUIState_wrapper {
         wrappersToDelete.addAll(AGENTS.values());
 
         for (SimObject_wrapper w : wrappersToDelete) w.delete();
+
+        Flocker_wrapper.empty_IDs.clear();
 
         return true;
     }

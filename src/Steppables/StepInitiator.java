@@ -17,10 +17,9 @@ public class StepInitiator implements Steppable {
     public void step(SimState state) {
         // check updates
         while (!Sim_Controller.getUpdates().isEmpty()) {
-            Update update = Sim_Controller.getUpdates().pop();
+            Update update = Sim_Controller.getUpdates().remove();
             if(update.is_new()) {
-                update.setIs_new(!Sim_Controller.getSimulation().updateSimulationState(update.getUpdate()));
-                if(update.is_new()) Sim_Controller.getUpdates().push(update);
+                Sim_Controller.getSimulation().updateSimulationState(update.getUpdate());
             }
         }
     }

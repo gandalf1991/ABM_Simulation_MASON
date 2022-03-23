@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class PheromoneToFood_wrapper extends SimObject_wrapper {
     static private int quantity = 0;
-    static private SortedSet<Integer> empty_IDs = new TreeSet<>();;
+    static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
 
     public static int getQuantity() {
         return quantity;
@@ -79,7 +79,7 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
     }
     @Override
     public void reset() {
-        is_new = false;
+        is_new = true;
         steps_to_live_as_new = 0;
         ArrayList<Int2D> cells = (ArrayList<Int2D>) params.get("position");
         AntsForage.toFoodGrid.field[cells.get(0).x][cells.get(0).y] = 0f;
