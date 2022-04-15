@@ -96,7 +96,7 @@ public class Flockers3D extends SimState {
             if (random.nextBoolean(deadFlockerProbability)) {flocker.dead = true; deadFlockers++;}
             flockers.setObjectLocation(flocker, location);
             flocker.flockers = flockers;
-            flocker.theFlock = this;
+            //flocker.theFlock = this;
             agents_stoppables.put(x, schedule.scheduleRepeating(flocker));                                 // ADDED insertion in Stoppable collection
         }
     }

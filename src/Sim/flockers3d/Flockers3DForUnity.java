@@ -135,7 +135,7 @@ public class Flockers3DForUnity extends GUIState_wrapper {
                     a_wrapper.create((JSONObject)((JSONObject)a_c).get("params"));
                     Flockers3D.flockers.setObjectLocation(a_wrapper.getFlocker(), new Double3D(a_wrapper.getFlocker().loc.x, a_wrapper.getFlocker().loc.y, a_wrapper.getFlocker().loc.z));
                     a_wrapper.getFlocker().flockers = Flockers3D.flockers;
-                    a_wrapper.getFlocker().theFlock = (Flockers3D)this.state;
+                    //a_wrapper.getFlocker().theFlock = (Flockers3D)this.state;
                     Flockers3D.agents_stoppables.put(a_wrapper.getID(), this.state.schedule.scheduleRepeating(a_wrapper.getFlocker()));
                     AGENTS.put(new Pair<>(a_wrapper.getID(), agentClasses.get(0)), a_wrapper);
                     Flockers3D.numFlockers++;

@@ -20,7 +20,7 @@ public class Flocker3D implements Steppable {
 	public Double3D lastd = new Double3D(0,0,0);
 	public Quat4d orientation = new Quat4d();
 	public Continuous3D flockers;
-	public Flockers3D theFlock;
+	//public Flockers3D theFlock;
 	public boolean dead = false;
 
 	public Flocker3D(int id, Double3D location) {ID = id; loc = location;}
@@ -57,7 +57,7 @@ public class Flocker3D implements Steppable {
 		return createFromAxisAngle(rotAxis, rotAngle);
 	}
 	public Bag getNeighbors() {
-		return flockers.getNeighborsExactlyWithinDistance(loc, Flockers3D.neighborhood, true);
+		return flockers.getNeighborsExactlyWithinDistance(loc, Flockers3D.neighborhood, false);
 	}
 
 	private Double3D crossProduct(Double3D v1, Double3D v2) {
