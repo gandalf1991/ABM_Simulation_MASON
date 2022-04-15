@@ -18,11 +18,9 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
 public class Ant_wrapper extends SimObject_wrapper {
-
     static private int quantity = 0;
-    static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
+    static public SortedSet<Integer> empty_IDs = new TreeSet<>();
     private Ant ant;
 
     public static int getQuantity() {
@@ -126,5 +124,4 @@ public class Ant_wrapper extends SimObject_wrapper {
         empty_IDs.add(ID);
         --quantity;
     }
-
 }

@@ -2,11 +2,9 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers;
+package Sim.flockers3D;
 
-import Sim.antsforage.Ant;
-import Sim.antsforage.AntsForage;
-import Sim.flockers.wrappers.Flocker_wrapper;
+import Sim.flockers3D.wrappers.Flocker3D_wrapper;
 import Utils.CustomController;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
@@ -22,14 +20,14 @@ import java.util.*;
 
 import static java.lang.System.currentTimeMillis;
 
-public class FlockersForUnity extends GUIState_wrapper {
+public class Flockers3DForUnity extends GUIState_wrapper {
 
     public static void main(String[] args) {}
-    public FlockersForUnity() {
-        super(new Flockers(currentTimeMillis()));
+    public Flockers3DForUnity() {
+        super(new Flockers3D(currentTimeMillis()));
         c = new CustomController(this);
     }
-    public FlockersForUnity(SimState state) { super(state); }
+    public Flockers3DForUnity(SimState state) { super(state); }
     public static String getName() { return "Flockers"; }
     public void start() {
         super.start();  // set up everything
@@ -59,27 +57,27 @@ public class FlockersForUnity extends GUIState_wrapper {
 
         // Init wrapped/raw sim params
         JSONArray params = (JSONArray)prototype.get("sim_params");
-        Flockers.width = ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(0)).get("default")).intValue();             // X in Unity -> width
-        Flockers.height = ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(1)).get("default")).intValue();            // Y in Unity -> height
-        Flockers.lenght =  ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(2)).get("default")).intValue();           // Z in Unity -> lenght
-        Flockers.flockers = new Continuous3D(Flockers.neighborhood/1.5d,Flockers.width,Flockers.height,Flockers.lenght);
+        Flockers3D.width = ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(0)).get("default")).intValue();             // X in Unity -> width
+        Flockers3D.height = ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(1)).get("default")).intValue();            // Y in Unity -> height
+        Flockers3D.lenght =  ((Number)((JSONObject)((JSONArray)prototype.get("dimensions")).get(2)).get("default")).intValue();           // Z in Unity -> lenght
+        Flockers3D.flockers = new Continuous3D(Flockers3D.neighborhood/1.5d, Flockers3D.width, Flockers3D.height, Flockers3D.lenght);
         for (Object d : ((JSONArray)prototype.get("dimensions")).toArray()) {
             DIMENSIONS.put((String) ((JSONObject)d).get("name"), ((Number)((JSONObject)d).get("default")).intValue());
         }
-        Flockers.numFlockers = ((Number)((JSONObject)((JSONArray)prototype.get("agent_prototypes")).get(0)).get("default")).intValue();
+        Flockers3D.numFlockers = ((Number)((JSONObject)((JSONArray)prototype.get("agent_prototypes")).get(0)).get("default")).intValue();
         params.forEach(o -> {
             // wrapped
             SIM_PARAMS.put((String)((JSONObject)o).get("name"), ((JSONObject)o).get("default"));
             // raw
-            if(((JSONObject)o).get("name").equals("cohesion")) Flockers.cohesion = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("avoidance")) Flockers.avoidance = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("randomness")) Flockers.randomness = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("consistency")) Flockers.consistency = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("momentum")) Flockers.momentum = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("deadFlockerProbability")) Flockers.deadFlockerProbability = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("neighborhood")) Flockers.neighborhood = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("jump")) Flockers.jump = ((Number)((JSONObject)o).get("default")).floatValue();
-            else if(((JSONObject)o).get("name").equals("AVOID_DISTANCE")) Flockers.AVOID_DISTANCE = ((Number)((JSONObject)o).get("default")).floatValue();
+            if(((JSONObject)o).get("name").equals("cohesion")) Flockers3D.cohesion = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("avoidance")) Flockers3D.avoidance = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("randomness")) Flockers3D.randomness = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("consistency")) Flockers3D.consistency = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("momentum")) Flockers3D.momentum = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("deadFlockerProbability")) Flockers3D.deadFlockerProbability = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("neighborhood")) Flockers3D.neighborhood = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("jump")) Flockers3D.jump = ((Number)((JSONObject)o).get("default")).floatValue();
+            else if(((JSONObject)o).get("name").equals("AVOID_DISTANCE")) Flockers3D.AVOID_DISTANCE = ((Number)((JSONObject)o).get("default")).floatValue();
         });
 
         // Init raw Simulation
@@ -93,9 +91,9 @@ public class FlockersForUnity extends GUIState_wrapper {
         //}
 
         // Init Flocker wrappers
-        Flocker_wrapper.setQuantity(Flockers.numFlockers);
-        for (int i=0; i<Flockers.numFlockers; i++){
-            Flocker_wrapper aw = new Flocker_wrapper(Flockers.flockers.getAllObjects().objs[i], params);
+        Flocker3D_wrapper.setQuantity(Flockers3D.numFlockers);
+        for (int i = 0; i< Flockers3D.numFlockers; i++){
+            Flocker3D_wrapper aw = new Flocker3D_wrapper(Flockers3D.flockers.getAllObjects().objs[i], params);
             AGENTS.put(new Pair<>(i, agentClasses.get(0)), aw);
         }
         return true;
@@ -108,15 +106,15 @@ public class FlockersForUnity extends GUIState_wrapper {
                 String key = ((Map.Entry<String, Object>) s_p).getKey();
                 Object value = ((Map.Entry<String, Object>) s_p).getValue();
                 SIM_PARAMS.put(key, value);
-                if (key.equals("cohesion")) Flockers.cohesion = ((Number) value).floatValue();
-                else if (key.equals("avoidance")) Flockers.avoidance = ((Number) value).floatValue();
-                else if (key.equals("randomness")) Flockers.randomness = ((Number) value).floatValue();
-                else if (key.equals("consistency")) Flockers.consistency = ((Number) value).floatValue();
-                else if (key.equals("momentum")) Flockers.momentum = ((Number) value).floatValue();
-                else if (key.equals("deadFlockerProbability")) Flockers.deadFlockerProbability = ((Number) value).floatValue();
-                else if (key.equals("neighborhood")) Flockers.neighborhood = ((Number) value).floatValue();
-                else if (key.equals("jump")) Flockers.jump = ((Number) value).floatValue();
-                else if (key.equals("AVOID_DISTANCE")) Flockers.AVOID_DISTANCE = ((Number) value).floatValue();
+                if (key.equals("cohesion")) Flockers3D.cohesion = ((Number) value).floatValue();
+                else if (key.equals("avoidance")) Flockers3D.avoidance = ((Number) value).floatValue();
+                else if (key.equals("randomness")) Flockers3D.randomness = ((Number) value).floatValue();
+                else if (key.equals("consistency")) Flockers3D.consistency = ((Number) value).floatValue();
+                else if (key.equals("momentum")) Flockers3D.momentum = ((Number) value).floatValue();
+                else if (key.equals("deadFlockerProbability")) Flockers3D.deadFlockerProbability = ((Number) value).floatValue();
+                else if (key.equals("neighborhood")) Flockers3D.neighborhood = ((Number) value).floatValue();
+                else if (key.equals("jump")) Flockers3D.jump = ((Number) value).floatValue();
+                else if (key.equals("AVOID_DISTANCE")) Flockers3D.AVOID_DISTANCE = ((Number) value).floatValue();
             }
         }
 
@@ -133,14 +131,14 @@ public class FlockersForUnity extends GUIState_wrapper {
         if(update.containsKey("agents_create")) {
             for (Object a_c: (JSONArray)update.get("agents_create")) {
                 for (int i = 0; i<((Number)((JSONObject)a_c).get("quantity")).intValue(); i++){
-                    Flocker_wrapper a_wrapper = new Flocker_wrapper();
+                    Flocker3D_wrapper a_wrapper = new Flocker3D_wrapper();
                     a_wrapper.create((JSONObject)((JSONObject)a_c).get("params"));
-                    Flockers.flockers.setObjectLocation(a_wrapper.getFlocker(), new Double3D(a_wrapper.getFlocker().loc.x, a_wrapper.getFlocker().loc.y, a_wrapper.getFlocker().loc.z));
-                    a_wrapper.getFlocker().flockers = Flockers.flockers;
-                    a_wrapper.getFlocker().theFlock = (Flockers)this.state;
-                    Flockers.agents_stoppables.put(a_wrapper.getID(), this.state.schedule.scheduleRepeating(a_wrapper.getFlocker()));
+                    Flockers3D.flockers.setObjectLocation(a_wrapper.getFlocker(), new Double3D(a_wrapper.getFlocker().loc.x, a_wrapper.getFlocker().loc.y, a_wrapper.getFlocker().loc.z));
+                    a_wrapper.getFlocker().flockers = Flockers3D.flockers;
+                    a_wrapper.getFlocker().theFlock = (Flockers3D)this.state;
+                    Flockers3D.agents_stoppables.put(a_wrapper.getID(), this.state.schedule.scheduleRepeating(a_wrapper.getFlocker()));
                     AGENTS.put(new Pair<>(a_wrapper.getID(), agentClasses.get(0)), a_wrapper);
-                    Flockers.numFlockers++;
+                    Flockers3D.numFlockers++;
                 }
             }
         }
@@ -174,7 +172,7 @@ public class FlockersForUnity extends GUIState_wrapper {
         ArrayList<SimObject_wrapper> wrappersToReset = new ArrayList<>();
 
         // reschedule ants
-        ((Flockers)state).scheduleAgain();
+        ((Flockers3D)state).scheduleAgain();
 
         // AGENTS
         wrappersToReset.addAll(AGENTS.values());
@@ -191,7 +189,7 @@ public class FlockersForUnity extends GUIState_wrapper {
 
         for (SimObject_wrapper w : wrappersToDelete) w.delete();
 
-        Flocker_wrapper.empty_IDs.clear();
+        Flocker3D_wrapper.empty_IDs.clear();
 
         return true;
     }

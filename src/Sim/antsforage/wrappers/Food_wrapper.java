@@ -1,3 +1,7 @@
+/*
+ 	Written by Pietro Russo using MASON by Sean Luke and George Mason University
+*/
+
 package Sim.antsforage.wrappers;
 
 import Sim.antsforage.AntsForage;

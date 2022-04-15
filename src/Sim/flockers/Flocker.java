@@ -2,7 +2,7 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers;
+package Sim.flockers3D;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.portrayal3d.SimplePortrayal3D;
@@ -12,7 +12,7 @@ import javax.vecmath.Quat4d;
 import ec.util.*;
 
 
-public class Flocker extends SimplePortrayal3D implements Steppable {
+public class Flocker3D extends SimplePortrayal3D implements Steppable {
 
 	private static final long serialVersionUID = 1;
 
@@ -21,10 +21,10 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 	public Double3D lastd = new Double3D(0,0,0);
 	public Quat4d orientation = new Quat4d();
 	public Continuous3D flockers;
-	public Flockers theFlock;
+	public Flockers3D theFlock;
 	public boolean dead = false;
 
-	public Flocker(int id, Double3D location) {ID = id; loc = location;}
+	public Flocker3D(int id, Double3D location) {ID = id; loc = location;}
 
 	public int getID() {
 		return ID;
@@ -58,7 +58,7 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 		return createFromAxisAngle(rotAxis, rotAngle);
 	}
 	public Bag getNeighbors() {
-		return flockers.getNeighborsExactlyWithinDistance(loc, Flockers.neighborhood, true);
+		return flockers.getNeighborsExactlyWithinDistance(loc, Flockers3D.neighborhood, true);
 	}
 
 	private Double3D crossProduct(Double3D v1, Double3D v2) {
@@ -89,9 +89,9 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 		int i = 0;
 		int count = 0;
 		for(i=0;i<b.numObjs;i++) {
-			Flocker other = (Flocker)(b.objs[i]);
+			Flocker3D other = (Flocker3D)(b.objs[i]);
 			if (!other.dead) {
-				Double3D m = ((Flocker)b.objs[i]).momentum();
+				Double3D m = ((Flocker3D)b.objs[i]).momentum();
 				count++;
 				x += m.x;
 				y += m.y;
@@ -112,7 +112,7 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 		int i = 0;
 		for(i=0;i<b.numObjs;i++)
 		{
-			Flocker other = (Flocker)(b.objs[i]);
+			Flocker3D other = (Flocker3D)(b.objs[i]);
 			if (!other.dead)
 			{
 				double dx = flockers.tdx(loc.x,other.loc.x);
@@ -138,7 +138,7 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 
 		for(i=0;i<b.numObjs;i++)
 		{
-			Flocker other = (Flocker)(b.objs[i]);
+			Flocker3D other = (Flocker3D)(b.objs[i]);
 			if (other != this )
 			{
 				double dx = flockers.tdx(loc.x,other.loc.x);
@@ -172,7 +172,7 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 
 		for( int i = 0 ; i < 3 ; i++ ) {
 			distFromAxis[i] = Math.sqrt(Math.pow(this.loc.x,2) + Math.pow(this.loc.y,2) + Math.pow(this.loc.z,2));
-			if( distFromAxis[i] <= Flockers.AVOID_DISTANCE)
+			if( distFromAxis[i] <= Flockers3D.AVOID_DISTANCE)
 			{
 				Double3D temp = loc.subtract( new Double3D());
 				temp = temp.normalize();
@@ -184,44 +184,44 @@ public class Flocker extends SimplePortrayal3D implements Steppable {
 
 	public void step(SimState state) {
 
-		final Flockers flock = (Flockers)state;
-		loc = Flockers.flockers.getObjectLocation(this);
+		final Flockers3D flock = (Flockers3D)state;
+		loc = Flockers3D.flockers.getObjectLocation(this);
 
 		if (dead) return;
 
 		Bag b = getNeighbors();
 
-		Double3D avoid = avoidance(b, Flockers.flockers);
-		Double3D cohe = cohesion(b, Flockers.flockers);
+		Double3D avoid = avoidance(b, Flockers3D.flockers);
+		Double3D cohe = cohesion(b, Flockers3D.flockers);
 		Double3D rand = randomness(flock.random);
-		Double3D cons = consistency(b, Flockers.flockers);
+		Double3D cons = consistency(b, Flockers3D.flockers);
 		Double3D mome = momentum();
 
-		double dx = Flockers.cohesion * cohe.x + Flockers.avoidance * avoid.x + Flockers.consistency * cons.x + Flockers.randomness * rand.x + Flockers.momentum * mome.x;
-		double dy = Flockers.cohesion * cohe.y + Flockers.avoidance * avoid.y + Flockers.consistency * cons.y + Flockers.randomness * rand.y + Flockers.momentum * mome.y;
-		double dz = Flockers.cohesion * cohe.z + Flockers.avoidance * avoid.z + Flockers.consistency * cons.z + Flockers.randomness * rand.z + Flockers.momentum * mome.z;
+		double dx = Flockers3D.cohesion * cohe.x + Flockers3D.avoidance * avoid.x + Flockers3D.consistency * cons.x + Flockers3D.randomness * rand.x + Flockers3D.momentum * mome.x;
+		double dy = Flockers3D.cohesion * cohe.y + Flockers3D.avoidance * avoid.y + Flockers3D.consistency * cons.y + Flockers3D.randomness * rand.y + Flockers3D.momentum * mome.y;
+		double dz = Flockers3D.cohesion * cohe.z + Flockers3D.avoidance * avoid.z + Flockers3D.consistency * cons.z + Flockers3D.randomness * rand.z + Flockers3D.momentum * mome.z;
 
 		// renormalize to the given step size
 		double dis = Math.sqrt(dx*dx+dy*dy+dz*dz);
 		if (dis>0) {
-			dx = dx / dis * Flockers.jump;
-			dy = dy / dis * Flockers.jump;
-			dz = dz / dis * Flockers.jump;
+			dx = dx / dis * Flockers3D.jump;
+			dy = dy / dis * Flockers3D.jump;
+			dz = dz / dis * Flockers3D.jump;
 		}
 
-		if (loc.x + dx > Flockers.width || loc.x + dx < 0) {
+		if (loc.x + dx > Flockers3D.width || loc.x + dx < 0) {
 			dx = -dx;
 		}
-		if (loc.y + dy > Flockers.lenght || loc.y + dy < 0) {
+		if (loc.y + dy > Flockers3D.lenght || loc.y + dy < 0) {
 			dy = -dy;
 		}
-		if (loc.z + dz > Flockers.height || loc.z + dz < 0) {
+		if (loc.z + dz > Flockers3D.height || loc.z + dz < 0) {
 			dz = -dz;
 		}
 
 		lastd = new Double3D(dx,dy,dz);
-		loc = new Double3D(Flockers.flockers.stx(loc.x + dx), Flockers.flockers.sty(loc.y + dy), Flockers.flockers.stz(loc.z + dz));
-		Flockers.flockers.setObjectLocation(this, loc);
+		loc = new Double3D(Flockers3D.flockers.stx(loc.x + dx), Flockers3D.flockers.sty(loc.y + dy), Flockers3D.flockers.stz(loc.z + dz));
+		Flockers3D.flockers.setObjectLocation(this, loc);
 	}
 }
 

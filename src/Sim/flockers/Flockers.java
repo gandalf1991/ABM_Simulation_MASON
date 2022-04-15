@@ -2,14 +2,14 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers;
+package Sim.flockers3D;
 
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
 import java.util.HashMap;
 
-public class Flockers extends SimState {
+public class Flockers3D extends SimState {
     private static final long serialVersionUID = 1;
 
     public static double width = 400;
@@ -76,7 +76,7 @@ public class Flockers extends SimState {
 
 
     /** Creates a Flockers simulation with the given random number seed. */
-    public Flockers(long seed) {
+    public Flockers3D(long seed) {
     	super(seed);
     }
     
@@ -92,7 +92,7 @@ public class Flockers extends SimState {
         // make a bunch of flockers and schedule 'em.  A few will be dead
         for(int x=0; x<numFlockers; x++) {
             Double3D location = new Double3D(random.nextDouble() * width, random.nextDouble() * height, random.nextDouble() * lenght);
-            Flocker flocker = new Flocker(x, location);
+            Flocker3D flocker = new Flocker3D(x, location);
             if (random.nextBoolean(deadFlockerProbability)) {flocker.dead = true; deadFlockers++;}
             flockers.setObjectLocation(flocker, location);
             flocker.flockers = flockers;
@@ -106,8 +106,8 @@ public class Flockers extends SimState {
         // Schedule flockers
         deadFlockers = 0;
         for(int x=0; x < numFlockers; x++) {
-            Flocker flocker = (Flocker) Flockers.flockers.getAllObjects().get(x);
-            flocker.loc = new Double3D(random.nextDouble() * Flockers.width, random.nextDouble() * Flockers.height, random.nextDouble() * Flockers.lenght);
+            Flocker3D flocker = (Flocker3D) Flockers3D.flockers.getAllObjects().get(x);
+            flocker.loc = new Double3D(random.nextDouble() * Flockers3D.width, random.nextDouble() * Flockers3D.height, random.nextDouble() * Flockers3D.lenght);
             if (random.nextBoolean(deadFlockerProbability)) {flocker.dead = true; deadFlockers++;}
             flockers.setObjectLocation(flocker, flocker.loc);
             agents_stoppables.put(x, schedule.scheduleRepeating(flocker));
@@ -115,7 +115,7 @@ public class Flockers extends SimState {
     }
 
     public static void main(String[] args) {
-        doLoop(Flockers.class, args);
+        doLoop(Flockers3D.class, args);
         System.exit(0);
     }
 }

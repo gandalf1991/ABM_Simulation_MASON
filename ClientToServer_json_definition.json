@@ -240,7 +240,9 @@ CMD 4 SPEED
 #### OP 007 - RESPONSE_PAYLOAD ####
 {
   "response_to_op" : "001",
-  "reponse" : "..."
+  "result" : ...,
+  "error" : ...,
+  "payload_data" : {}
 }
 #### OP 999 - CLIENT_ERROR_PAYLOAD ####
 {

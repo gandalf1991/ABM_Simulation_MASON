@@ -1,5 +1,8 @@
-package Sim.antsforage.wrappers;
+/*
+ 	Written by Pietro Russo using MASON by Sean Luke and George Mason University
+*/
 
+package Sim.antsforage.wrappers;
 
 import Sim.antsforage.AntsForage;
 import Wrappers.GUIState_wrapper;
@@ -15,7 +18,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Obstacle_wrapper extends SimObject_wrapper {
-    private final String class_name;
     static private int quantity = 0;
     static public SortedSet<Integer> empty_IDs = new TreeSet<>();;
 
@@ -54,9 +56,7 @@ public class Obstacle_wrapper extends SimObject_wrapper {
         this.params.put("rotation", new Quaternion(((Number)((JSONObject)params.get("rotation")).get("x")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("y")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("z")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("w")).floatValue()));
     }
     @Override
-    public void update(JSONObject params) {
-
-    }
+    public void update(JSONObject params) {}
     @Override
     public boolean updateWrapper() {return false;}
     @Override
