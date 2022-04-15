@@ -2,17 +2,16 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers3D;
+package Sim.flockers3d;
 import sim.engine.*;
 import sim.field.continuous.*;
-import sim.portrayal3d.SimplePortrayal3D;
 import sim.util.*;
 import javax.vecmath.Quat4d;
 
 import ec.util.*;
 
 
-public class Flocker3D extends SimplePortrayal3D implements Steppable {
+public class Flocker3D implements Steppable {
 
 	private static final long serialVersionUID = 1;
 

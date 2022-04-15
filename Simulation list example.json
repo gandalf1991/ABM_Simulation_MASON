@@ -2,7 +2,7 @@
   "list": [
     {
       "id": 0,
-      "name": "Flockers",
+      "name": "Flockers3D",
       "description": "This is a simple example of Boids-style flocking, hastily put together late one night at the SwarmFest 2004 conference. It's much simpler and somewhat faster than our Woims and Woims3D models, which employ sinusoidal movement of multiple worm segments, mostly for fun. Incidentally, Craig Reynolds won a techincal Oscar (Scientific and Engineering) for his Boids algorithm.",
       "type": "Continuous",
       "dimensions": [

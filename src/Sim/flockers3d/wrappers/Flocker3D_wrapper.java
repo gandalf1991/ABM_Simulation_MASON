@@ -1,4 +1,4 @@
-package Sim.flockers3D.wrappers;
+package Sim.flockers3d.wrappers;
 
 
 import Utils.Float3D;
@@ -7,7 +7,7 @@ import Wrappers.SimObject_wrapper;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import Sim.flockers3D.*;
+import Sim.flockers3d.*;
 import sim.util.Double3D;
 import java.util.SortedSet;
 import java.util.TreeSet;

@@ -2,7 +2,7 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers3D;
+package Sim.flockers3d;
 
 import sim.engine.*;
 import sim.util.*;

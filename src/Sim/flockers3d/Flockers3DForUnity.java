@@ -2,9 +2,9 @@
  	Written by Pietro Russo using MASON by Sean Luke and George Mason University
 */
 
-package Sim.flockers3D;
+package Sim.flockers3d;
 
-import Sim.flockers3D.wrappers.Flocker3D_wrapper;
+import Sim.flockers3d.wrappers.Flocker3D_wrapper;
 import Utils.CustomController;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
@@ -28,7 +28,7 @@ public class Flockers3DForUnity extends GUIState_wrapper {
         c = new CustomController(this);
     }
     public Flockers3DForUnity(SimState state) { super(state); }
-    public static String getName() { return "Flockers"; }
+    public static String getName() { return "Flockers3D"; }
     public void start() {
         super.start();  // set up everything
     }

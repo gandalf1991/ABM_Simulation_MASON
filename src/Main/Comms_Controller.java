@@ -237,8 +237,10 @@ public class Comms_Controller {
 		JSONObject response = new JSONObject();
 		JSONObject payload = (JSONObject) request.get("payload");
 
-		if(USERS.get(sender).isAdmin()){
-			ADMIN_LAST_SEEN = System.currentTimeMillis();
+		if(USERS.containsKey(sender)){
+			if(USERS.get(sender).isAdmin()){
+				ADMIN_LAST_SEEN = System.currentTimeMillis();
+			}
 		}
 
 		// trigger init sim event
