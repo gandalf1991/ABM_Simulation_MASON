@@ -83,6 +83,7 @@ public class Flocker3D_wrapper extends SimObject_wrapper {
     @Override
     public void reset(){
         is_new = true;
+        steps_to_live_as_new = 0;
         updateWrapper();
     }
     @Override

@@ -7,6 +7,7 @@ package Sim.antsforage.wrappers;
 import Sim.antsforage.AntsForage;
 import Wrappers.GUIState_wrapper;
 import Wrappers.SimObject_wrapper;
+import com.jogamp.opengl.math.Quaternion;
 import javafx.util.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -51,6 +52,7 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
         ArrayList<Int2D> mapping = (ArrayList<Int2D>) toMap;
         this.params.put("position", mapping);
         this.params.put("intensity", AntsForage.toFoodGrid.field[mapping.get(0).x][mapping.get(0).y]);
+        this.params.put("rotation", new Quaternion(0,0,0,1));
     }
     @Override
     public void create(JSONObject params) {
@@ -70,6 +72,7 @@ public class PheromoneToFood_wrapper extends SimObject_wrapper {
         AntsForage.toFoodGrid.field[cell.x][cell.y] = intensity;
         this.params.put("position", cells);
         this.params.put("intensity", intensity);
+        this.params.put("rotation", new Quaternion(((Number)((JSONObject)params.get("rotation")).get("x")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("y")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("z")).floatValue(), ((Number)((JSONObject)params.get("rotation")).get("w")).floatValue()));
     }
     @Override
     public void update(JSONObject params) {

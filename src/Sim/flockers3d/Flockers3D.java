@@ -51,7 +51,6 @@ public class Flockers3D extends SimState {
     public static double getDeadFlockerProbability() { return deadFlockerProbability; }
     public static void setDeadFlockerProbability(double val) { if (val >= 0.0 && val <= 1.0) deadFlockerProbability = val; }
 
-   
     public static Double3D[] getLocations() {
         if (flockers == null) return new Double3D[0];
         Bag b = flockers.getAllObjects();
@@ -73,7 +72,6 @@ public class Flockers3D extends SimState {
             }
         return locs;
     }
-
 
     /** Creates a Flockers simulation with the given random number seed. */
     public Flockers3D(long seed) {
@@ -100,7 +98,6 @@ public class Flockers3D extends SimState {
             agents_stoppables.put(x, schedule.scheduleRepeating(flocker));                                 // ADDED insertion in Stoppable collection
         }
     }
-
 
     public void scheduleAgain(){
         // Schedule flockers

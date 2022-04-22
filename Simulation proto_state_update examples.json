@@ -201,3 +201,13 @@
     }
   ]
 }
+
+#### TYPE TYPES ####
+
+"System.Single"
+"System.Int32"
+"System.Boolean"
+"System.String"
+"System.Position"
+"System.Rotation"
+"System.Cells"

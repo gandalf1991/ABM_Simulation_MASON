@@ -317,6 +317,15 @@
               "editable_in_play": true,
               "editable_in_pause": true,
               "default": 1
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         },
@@ -352,6 +361,15 @@
               "editable_in_play": true,
               "editable_in_pause": true,
               "default": 1
+            },
+            {
+              "name": "rotation",
+              "type": "System.Rotation",
+              "is_in_step" : false,
+              "editable_in_init": false,
+              "editable_in_play": false,
+              "editable_in_pause": true,
+              "default": {"x" : 0, "y" : 0, "z": 0, "w":1},
             }
           ]
         }
